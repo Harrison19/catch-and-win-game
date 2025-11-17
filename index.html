@@ -1,848 +1,660 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Catch & Win Game</title>
+  <title>Catch & Win – Laundry Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * {
-      box-sizing: border-box;
+    body {
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #f0f8ff, #e0f7fa);
       display: flex;
       justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    #container {
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Arial, sans-serif;
-      background: linear-gradient(180deg, #4fb5ff 0%, #e0f6ff 100%);
-      color: #111827;
-    }
-
-    .wrapper {
+      max-width: 420px;
       width: 100%;
-      max-width: 480px;
-      background: #f9fafb;
-      border-radius: 16px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
-      overflow: hidden;
-      border: 1px solid #e5e7eb;
     }
 
-    header {
-      padding: 16px 20px;
-      background: linear-gradient(135deg, #0ea5e9, #22c55e);
-      color: white;
+    h1 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      text-align: center;
+      color: #333;
     }
 
-    header h1 {
-      font-size: 1.3rem;
-      margin-bottom: 4px;
+    #subtitle {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #555;
     }
 
-    header p {
-      font-size: 0.85rem;
-      opacity: 0.9;
+    #gameWrapper {
+      position: relative;
     }
 
-    main {
-      padding: 16px;
+    canvas {
+      border: 3px solid #333;
+      border-radius: 10px;
+      background: #bbdefb;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      display: block;
     }
 
-    .screen {
+    #overlayMessage {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #overlayMessage.hidden {
       display: none;
     }
 
-    .screen.active {
-      display: block;
-    }
-
-    .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px 16px;
+    #overlayMessage button {
+      margin-top: 12px;
+      padding: 8px 16px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: transform 0.08s ease, box-shadow 0.08s ease,
-        background 0.15s ease;
-      outline: none;
-      gap: 6px;
-      text-decoration: none;
+      font-weight: bold;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #0ea5e9, #22c55e);
-      color: white;
-      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 28px rgba(34, 197, 94, 0.55);
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
-
-    .btn-secondary:hover {
-      background: #d1d5db;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.08);
-      font-size: 0.75rem;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .pill span {
-      font-weight: 600;
-    }
-
-    /* Game canvas */
-    .game-shell {
-      background: #0f172a;
-      border-radius: 12px;
-      padding: 10px 10px 12px;
-      color: #e5e7eb;
-    }
-
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      margin-bottom: 6px;
-    }
-
-    .game-header div {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    #gameCanvas {
-      background: linear-gradient(180deg, #1d4ed8 0%, #22c55e 100%);
-      border-radius: 10px;
-      display: block;
-      margin: 0 auto;
-      border: 2px solid rgba(15, 23, 42, 0.6);
-    }
-
-    .helper-text {
-      font-size: 0.8rem;
-      color: #6b7280;
+    #infoBar {
       margin-top: 8px;
+      font-size: 14px;
       text-align: center;
+      color: #444;
     }
 
-    .center {
-      text-align: center;
+    #questionsSection,
+    #resultSection {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 14px 16px;
+      box-sizing: border-box;
+      display: none;
     }
 
-    .stack {
+    #questionsSection h2,
+    #resultSection h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    select {
+      width: 100%;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    #submitAnswers {
+      margin-top: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #submitAnswers:hover {
+      background: #0f5ca4;
+    }
+
+    #resultText {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .btn-row {
+      margin-top: 8px;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .stack-sm {
-      display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
-    .reward-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      color: #166534;
-      font-size: 0.8rem;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .question-group {
-      margin-bottom: 14px;
-    }
-
-    .question-group h3 {
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-    }
-
-    .options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .opt {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid #d4d4d8;
-      background: white;
-      cursor: pointer;
-      transition: background 0.1s ease, border-color 0.1s ease,
-        color 0.1s ease;
-    }
-
-    .opt.selected {
-      background: #0ea5e9;
-      border-color: #0284c7;
-      color: white;
-    }
-
-    .small {
-      font-size: 0.78rem;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    .tagline {
-      font-size: 0.9rem;
-      color: #4b5563;
-      margin-bottom: 4px;
-    }
-
-    .title-large {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .status-text {
-      font-size: 0.85rem;
-      margin-top: 4px;
+    .result-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 8px;
       text-align: center;
-      color: #e5e7eb;
+      border-radius: 999px;
+      border: none;
+      background: #eeeeee;
+      cursor: pointer;
+      font-size: 13px;
     }
 
-    .status-text.good {
-      color: #bbf7d0;
+    .result-btn.primary {
+      background: #1976d2;
+      color: #fff;
     }
 
-    .status-text.miss {
-      color: #fecaca;
+    .result-btn.primary:hover {
+      background: #0f5ca4;
     }
 
-    .share-status {
-      font-size: 0.8rem;
-      margin-top: 6px;
-      color: #16a34a;
+    .small-note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <header>
-      <div class="pill">
-        🎮 <span>Abandoned Cart Bonus Round</span>
+  <div id="container">
+    <h1>Catch & Win</h1>
+    <div id="subtitle">
+      You have 5 chances to catch falling detergent pods and unlock your reward.
+    </div>
+
+    <div id="gameWrapper">
+      <canvas id="gameCanvas" width="360" height="540"></canvas>
+      <div id="overlayMessage">
+        <div>
+          <div style="font-size:18px; margin-bottom:6px;">
+            Tap to start, catch as many as you can
+          </div>
+          <div style="font-size:14px;">
+            Move the basket left and right with your mouse or arrow keys.
+            Pegs will make the pods bounce. Most people catch 1–2.
+          </div>
+          <button>Start Game</button>
+        </div>
       </div>
-      <h1>Catch &amp; Win</h1>
-      <p>Move the basket, catch the drops, unlock your best reward.</p>
-    </header>
+    </div>
 
-    <main>
-      <!-- Intro screen -->
-      <section id="introScreen" class="screen active">
-        <div class="stack">
-          <div>
-            <p class="tagline">
-              You almost checked out… here is a quick game to say thanks for
-              visiting.
-            </p>
-            <p class="small">
-              Catch as many drops as you can. The better you do, the better
-              your reward.
-            </p>
-          </div>
+    <div id="infoBar">
+      Catches: <span id="catchesDisplay">0</span> / 5 | Misses:
+      <span id="missesDisplay">0</span>
+    </div>
 
-          <div class="center">
-            <button id="startGameBtn" class="btn btn-primary">
-              ▶ Play to Unlock My Reward
-            </button>
-          </div>
+    <div id="questionsSection">
+      <h2>Quick questions before you unlock your reward</h2>
 
-          <p class="helper-text">
-            Tip: Move the basket with your finger (mobile) or arrow keys (desktop).
-          </p>
-        </div>
-      </section>
+      <div class="question">
+        <label for="qPets">Do you have pets?</label>
+        <select id="qPets">
+          <option value="">Select one</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
 
-      <!-- Game screen -->
-      <section id="gameScreen" class="screen">
-        <div class="stack">
-          <div class="game-shell">
-            <div class="game-header">
-              <div>
-                🎯 Round
-                <span id="roundLabel">1 / 5</span>
-              </div>
-              <div>
-                🏆 Best:
-                <span id="bestRewardLabel">None yet</span>
-              </div>
-            </div>
-            <canvas id="gameCanvas" width="360" height="480"></canvas>
-            <div id="gameStatus" class="status-text"></div>
-          </div>
+      <div class="question">
+        <label for="qMachine">What type of machine do you use?</label>
+        <select id="qMachine">
+          <option value="">Select one</option>
+          <option value="top">Top loader</option>
+          <option value="front">Front loader</option>
+        </select>
+      </div>
 
-          <div class="center">
-            <button id="cancelGameBtn" class="btn btn-secondary">
-              Skip game, go to my offer
-            </button>
-          </div>
+      <div class="question">
+        <label for="qFrustration">What is your biggest laundry frustration?</label>
+        <select id="qFrustration">
+          <option value="">Select one</option>
+          <option value="smell">Smell</option>
+          <option value="stains">Stains</option>
+          <option value="time">Time</option>
+          <option value="pet-hair">Pet hair</option>
+        </select>
+      </div>
 
-          <p class="helper-text">
-            Catch at least one of the later drops to unlock higher rewards.
-          </p>
-        </div>
-      </section>
+      <div class="question">
+        <label for="qDogCat">Do you have a dog or cat?</label>
+        <select id="qDogCat">
+          <option value="">Select one</option>
+          <option value="dog">Dog</option>
+          <option value="cat">Cat</option>
+          <option value="both">Both</option>
+          <option value="neither">Neither</option>
+        </select>
+      </div>
 
-      <!-- Questions screen -->
-      <section id="questionsScreen" class="screen">
-        <div class="stack">
-          <div>
-            <div class="title-large">Almost done — 3 quick questions</div>
-            <p class="small">
-              These help us tune future tips and offers for you. Takes
-              <strong>10 seconds</strong>.
-            </p>
-          </div>
+      <div class="question">
+        <label for="qCleanHome">How important is a clean / fresh home?</label>
+        <select id="qCleanHome">
+          <option value="">Select 1–5</option>
+          <option value="1">1 – Not that important</option>
+          <option value="2">2</option>
+          <option value="3">3 – Somewhat important</option>
+          <option value="4">4</option>
+          <option value="5">5 – Very important</option>
+        </select>
+      </div>
 
-          <div>
-            <div class="question-group" data-question="hasPets">
-              <h3>1. Do you have pets?</h3>
-              <div class="options">
-                <button class="opt" data-value="yes">Yes</button>
-                <button class="opt" data-value="no">No</button>
-              </div>
-            </div>
+      <button id="submitAnswers">See my reward</button>
+      <div class="small-note">
+        Your answers help us tailor future tips and offers to your home.
+      </div>
+    </div>
 
-            <div class="question-group" data-question="machineType">
-              <h3>2. What type of machine do you use?</h3>
-              <div class="options">
-                <button class="opt" data-value="top_loader">
-                  Top loader
-                </button>
-                <button class="opt" data-value="front_loader">
-                  Front loader
-                </button>
-              </div>
-            </div>
-
-            <div class="question-group" data-question="biggestFrustration">
-              <h3>3. What is your biggest laundry frustration?</h3>
-              <div class="options">
-                <button class="opt" data-value="smell">Smell</button>
-                <button class="opt" data-value="stains">Stains</button>
-                <button class="opt" data-value="time">Time</button>
-                <button class="opt" data-value="pet_hair">Pet hair</button>
-              </div>
-            </div>
-
-            <p class="small">
-              Note: Answers are linked to your abandoned cart profile so we
-              can improve future recommendations.
-            </p>
-          </div>
-
-          <div class="center">
-            <button id="submitQuestionsBtn" class="btn btn-primary">
-              ➤ See My Reward
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Summary / reward screen -->
-      <section id="summaryScreen" class="screen">
-        <div class="stack">
-          <div>
-            <p class="tagline">Nice work 🎉</p>
-            <div class="title-large">
-              You unlocked:
-              <span id="finalRewardLabel"></span>
-            </div>
-            <div class="reward-badge">
-              🕒 Reward active for the next 24 hours
-            </div>
-            <p class="small" style="margin-top: 8px">
-              Use it on your next order. This link is unique to you so we can
-              track your redemption.
-            </p>
-          </div>
-
-          <div class="stack-sm center">
-            <a
-              id="claimLink"
-              class="btn btn-primary"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              🛒 Shop with my reward
-            </a>
-
-            <button id="shareGameBtn" class="btn btn-secondary">
-              🔗 Share this game with a friend
-            </button>
-            <p class="small">
-              One share per person. Your friend can play and unlock their own
-              offer.
-            </p>
-            <p id="shareStatus" class="share-status"></p>
-          </div>
-        </div>
-      </section>
-    </main>
+    <div id="resultSection">
+      <h2>Your reward</h2>
+      <div id="resultText"></div>
+      <div class="small-note" id="expiresNote">
+        This offer is valid for the next 24 hours.
+      </div>
+      <div class="btn-row">
+        <button class="result-btn primary" id="goToSiteBtn">
+          Go back to checkout
+        </button>
+        <button class="result-btn" id="shareBtn">
+          Share this game
+        </button>
+      </div>
+      <div class="small-note">
+        For your marketing/dev team: answers and reward can be sent to your
+        backend/database. Right now they are just logged in the console.
+      </div>
+    </div>
   </div>
 
   <script>
-    /***********************
-     * SIMPLE STATE + DATA *
-     ***********************/
-    const screens = {
-      intro: document.getElementById("introScreen"),
-      game: document.getElementById("gameScreen"),
-      questions: document.getElementById("questionsScreen"),
-      summary: document.getElementById("summaryScreen"),
-    };
-
-    const startGameBtn = document.getElementById("startGameBtn");
-    const cancelGameBtn = document.getElementById("cancelGameBtn");
-    const submitQuestionsBtn = document.getElementById(
-      "submitQuestionsBtn"
-    );
-    const finalRewardLabel = document.getElementById("finalRewardLabel");
-    const roundLabel = document.getElementById("roundLabel");
-    const bestRewardLabel = document.getElementById("bestRewardLabel");
-    const gameStatus = document.getElementById("gameStatus");
-    const claimLink = document.getElementById("claimLink");
-    const shareGameBtn = document.getElementById("shareGameBtn");
-    const shareStatus = document.getElementById("shareStatus");
-
+    // Canvas setup
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // 5 rounds, later rounds = better rewards
-    const totalRounds = 5;
-    const rewardTiers = [
-      { label: "Free shipping", slug: "free_shipping" },
-      { label: "5% off", slug: "5_off" },
-      { label: "Free shipping + 5% off", slug: "free_ship_plus_5" },
-      { label: "10% off", slug: "10_off" },
-      { label: "Free shipping + 10% off", slug: "free_ship_plus_10" },
-    ];
+    // Overlay and UI
+    const overlay = document.getElementById("overlayMessage");
+    const catchesDisplay = document.getElementById("catchesDisplay");
+    const missesDisplay = document.getElementById("missesDisplay");
+    const questionsSection = document.getElementById("questionsSection");
+    const resultSection = document.getElementById("resultSection");
+    const resultText = document.getElementById("resultText");
 
-    let currentRound = 0;
-    let bestRewardIndex = -1;
-    let gameActive = false;
-    let animationId = null;
+    const qPets = document.getElementById("qPets");
+    const qMachine = document.getElementById("qMachine");
+    const qFrustration = document.getElementById("qFrustration");
+    const qDogCat = document.getElementById("qDogCat");
+    const qCleanHome = document.getElementById("qCleanHome");
+    const submitAnswers = document.getElementById("submitAnswers");
+    const goToSiteBtn = document.getElementById("goToSiteBtn");
+    const shareBtn = document.getElementById("shareBtn");
 
-    // simple ball + basket physics
+    // Game state
+    let gameRunning = false;
+    let totalBalls = 5;
+    let currentBallIndex = 0;
+    let catches = 0;
+    let misses = 0;
+
+    // Basket
+    const basket = {
+      width: 90,
+      height: 18,
+      x: canvas.width / 2 - 45,
+      y: canvas.height - 50,
+      speed: 6,
+      movingLeft: false,
+      movingRight: false,
+    };
+
+    // Ball
     const ball = {
+      radius: 10,
       x: canvas.width / 2,
-      y: 70,
-      radius: 12,
-      vy: 3.5,
+      y: 40,
+      vx: 0,
+      vy: 2,
+      gravity: 0.25,
       active: false,
     };
 
-    const basket = {
-      width: 90,
-      height: 22,
-      x: canvas.width / 2 - 45,
-      y: canvas.height - 60,
-      speed: 6,
-    };
+    // Pegs (Plinko-style)
+    const pegs = [];
+    function createPegs() {
+      pegs.length = 0;
+      const rows = 6;
+      const cols = 7;
+      const spacingX = canvas.width / (cols + 1);
+      const spacingY = 60;
+      const startY = 100;
+      const radius = 6;
 
-    let leftPressed = false;
-    let rightPressed = false;
-    let lastTimestamp = 0;
-    let roundCooldown = 0; // frames to wait before next round
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const offsetX = row % 2 === 0 ? spacingX / 2 : 0; // staggered
+          const x = spacingX * (col + 1) + offsetX * 0.7;
+          const y = startY + row * spacingY;
 
-    const playerAnswers = {
-      hasPets: null,
-      machineType: null,
-      biggestFrustration: null,
-    };
-
-    function showScreen(name) {
-      Object.values(screens).forEach((el) => el.classList.remove("active"));
-      screens[name].classList.add("active");
+          pegs.push({ x, y, r: radius });
+        }
+      }
     }
 
-    /*********************
-     * GAME LOOP + DRAW  *
-     *********************/
-    function resetGameState() {
-      currentRound = 0;
-      bestRewardIndex = -1;
-      gameActive = true;
-      roundCooldown = 0;
-      gameStatus.textContent = "";
-      bestRewardLabel.textContent = "None yet";
-      startRound();
-    }
+    createPegs();
 
-    function startRound() {
-      currentRound++;
-      if (currentRound > totalRounds) {
-        endGameToQuestions();
+    function resetBall() {
+      currentBallIndex++;
+      if (currentBallIndex > totalBalls) {
+        endGame();
         return;
       }
-
-      roundLabel.textContent = currentRound + " / " + totalRounds;
-
-      // random starting x (but not too close to edges)
-      const margin = 30;
-      ball.x =
-        Math.random() * (canvas.width - margin * 2) + margin;
-      ball.y = 70;
-      ball.vy = 3.5 + currentRound * 0.2; // slightly faster each round
+      ball.x = canvas.width / 2;
+      ball.y = 40;
+      ball.vx = (Math.random() - 0.5) * 1.5; // slight random drift
+      ball.vy = 2;
       ball.active = true;
-
-      gameStatus.textContent = "";
-      gameStatus.className = "status-text";
     }
 
-    function update(dt) {
-      if (!gameActive) return;
-
-      // keyboard movement
-      if (leftPressed) {
-        basket.x -= basket.speed;
-      }
-      if (rightPressed) {
-        basket.x += basket.speed;
-      }
-
-      // clamp basket inside canvas
-      if (basket.x < 4) basket.x = 4;
-      if (basket.x + basket.width > canvas.width - 4) {
-        basket.x = canvas.width - basket.width - 4;
-      }
-
-      if (ball.active) {
-        ball.y += ball.vy;
-
-        // collision with basket
-        const withinX =
-          ball.x > basket.x && ball.x < basket.x + basket.width;
-        const withinY =
-          ball.y + ball.radius >= basket.y &&
-          ball.y - ball.radius <= basket.y + basket.height;
-
-        if (withinX && withinY) {
-          ball.active = false;
-
-          // Player caught this round's drop
-          const thisRewardIndex = currentRound - 1;
-          if (thisRewardIndex > bestRewardIndex) {
-            bestRewardIndex = thisRewardIndex;
-          }
-
-          bestRewardLabel.textContent =
-            rewardTiers[bestRewardIndex].label;
-
-          gameStatus.textContent =
-            "Nice catch! You just unlocked: " +
-            rewardTiers[thisRewardIndex].label;
-          gameStatus.className = "status-text good";
-
-          // pause then next round
-          roundCooldown = 40; // ~0.6s at 60fps
-        } else if (ball.y - ball.radius > canvas.height) {
-          // missed
-          ball.active = false;
-          gameStatus.textContent =
-            "Missed this one, but there are more drops coming…";
-          gameStatus.className = "status-text miss";
-          roundCooldown = 40;
-        }
-      } else if (roundCooldown > 0) {
-        roundCooldown--;
-        if (roundCooldown === 0) {
-          startRound();
-        }
-      }
+    function endGame() {
+      gameRunning = false;
+      ball.active = false;
+      questionsSection.style.display = "block";
     }
 
+    // Drawing
     function drawBackground() {
-      // sky
-      const grad = ctx.createLinearGradient(
-        0,
-        0,
-        0,
-        canvas.height
-      );
-      grad.addColorStop(0, "#1d4ed8");
-      grad.addColorStop(1, "#22c55e");
-      ctx.fillStyle = grad;
+      // Light vertical gradient-ish background already in CSS,
+      // here we just draw “ground”
+      ctx.fillStyle = "#e3f2fd";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // simple clouds
-      ctx.fillStyle = "rgba(255,255,255,0.75)";
-      ctx.beginPath();
-      ctx.arc(70, 70, 18, 0, Math.PI * 2);
-      ctx.arc(90, 65, 22, 0, Math.PI * 2);
-      ctx.arc(115, 72, 18, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillStyle = "#c8e6c9";
+      ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+    }
 
-      ctx.beginPath();
-      ctx.arc(260, 90, 14, 0, Math.PI * 2);
-      ctx.arc(280, 86, 18, 0, Math.PI * 2);
-      ctx.arc(300, 92, 14, 0, Math.PI * 2);
-      ctx.fill();
-
-      // ground stripe
-      ctx.fillStyle = "#14532d";
-      ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+    function drawPegs() {
+      ctx.fillStyle = "#90caf9";
+      ctx.strokeStyle = "#1976d2";
+      ctx.lineWidth = 1.5;
+      pegs.forEach((peg) => {
+        ctx.beginPath();
+        ctx.arc(peg.x, peg.y, peg.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
     }
 
     function drawBasket() {
-      ctx.fillStyle = "#fbbf24";
-      ctx.beginPath();
-      ctx.roundRect(
-        basket.x,
-        basket.y,
-        basket.width,
-        basket.height,
-        6
-      );
-      ctx.fill();
+      ctx.fillStyle = "#ffb74d";
+      ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
 
-      // little basket lines
-      ctx.strokeStyle = "#f59e0b";
+      // simple handle detail
+      ctx.strokeStyle = "#f57c00";
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(basket.x + 6, basket.y + 8);
-      ctx.lineTo(
-        basket.x + basket.width - 6,
-        basket.y + 8
-      );
-      ctx.stroke();
+      ctx.strokeRect(basket.x, basket.y, basket.width, basket.height);
     }
 
     function drawBall() {
       if (!ball.active) return;
-      const rewardIndex = currentRound - 1;
-      const colorPalette = ["#e5e7eb", "#a5b4fc", "#34d399", "#f97316", "#facc15"];
-      const color =
-        colorPalette[rewardIndex] ||
-        colorPalette[colorPalette.length - 1];
-
-      ctx.fillStyle = color;
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff176";
       ctx.fill();
-
-      ctx.strokeStyle = "rgba(15,23,42,0.35)";
+      ctx.strokeStyle = "#fbc02d";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
 
-    function loop(timestamp) {
-      const dt = timestamp - lastTimestamp;
-      lastTimestamp = timestamp;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBackground();
-      update(dt);
-      drawBall();
-      drawBasket();
-
-      if (gameActive) {
-        animationId = requestAnimationFrame(loop);
+    function updateBasket() {
+      if (basket.movingLeft) {
+        basket.x -= basket.speed;
+      }
+      if (basket.movingRight) {
+        basket.x += basket.speed;
+      }
+      // clamp
+      if (basket.x < 10) basket.x = 10;
+      if (basket.x + basket.width > canvas.width - 10) {
+        basket.x = canvas.width - 10 - basket.width;
       }
     }
 
-    function startGameLoop() {
-      if (animationId) cancelAnimationFrame(animationId);
-      lastTimestamp = performance.now();
-      animationId = requestAnimationFrame(loop);
-    }
+    function updateBall() {
+      if (!ball.active) return;
 
-    function endGameToQuestions() {
-      gameActive = false;
-      if (animationId) cancelAnimationFrame(animationId);
+      // Gravity and movement
+      ball.vy += ball.gravity;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
 
-      // If player never caught anything, give them baseline reward
-      if (bestRewardIndex === -1) {
-        bestRewardIndex = 0;
+      // Slight wall bounce to keep it interesting
+      if (ball.x - ball.radius < 0) {
+        ball.x = ball.radius;
+        ball.vx *= -0.6;
+      } else if (ball.x + ball.radius > canvas.width) {
+        ball.x = canvas.width - ball.radius;
+        ball.vx *= -0.6;
       }
 
-      showScreen("questions");
-    }
+      // Peg collisions
+      for (let peg of pegs) {
+        const dx = ball.x - peg.x;
+        const dy = ball.y - peg.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < ball.radius + peg.r) {
+          // Simple bounce: reflect velocity along normal
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const dot = ball.vx * nx + ball.vy * ny;
+          ball.vx = ball.vx - 2 * dot * nx;
+          ball.vy = ball.vy - 2 * dot * ny;
 
-    /*********************
-     * INPUT HANDLERS    *
-     *********************/
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
-        leftPressed = true;
+          // Add a little randomness so paths are less predictable
+          ball.vx += (Math.random() - 0.5) * 0.7;
+          ball.vy += (Math.random() - 0.5) * 0.7;
+
+          // Push ball slightly out of peg
+          const overlap = ball.radius + peg.r - dist;
+          ball.x += nx * overlap;
+          ball.y += ny * overlap;
+        }
       }
-      if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
-        rightPressed = true;
-      }
-    });
 
-    document.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
-        leftPressed = false;
-      }
-      if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
-        rightPressed = false;
-      }
-    });
-
-    // Pointer move for mobile / mouse
-    canvas.addEventListener("pointermove", (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const pointerX = e.clientX - rect.left;
-      basket.x = pointerX - basket.width / 2;
-
-      if (basket.x < 4) basket.x = 4;
-      if (basket.x + basket.width > canvas.width - 4) {
-        basket.x = canvas.width - basket.width - 4;
-      }
-    });
-
-    /*********************
-     * QUESTION LOGIC    *
-     *********************/
-    document
-      .querySelectorAll(".question-group")
-      .forEach((groupEl) => {
-        const questionKey =
-          groupEl.getAttribute("data-question");
-        const opts = groupEl.querySelectorAll(".opt");
-        opts.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            // toggle selection
-            opts.forEach((b) => b.classList.remove("selected"));
-            btn.classList.add("selected");
-            const value = btn.getAttribute("data-value");
-            playerAnswers[questionKey] = value;
-          });
-        });
-      });
-
-    function validateQuestions() {
-      return (
-        playerAnswers.hasPets &&
-        playerAnswers.machineType &&
-        playerAnswers.biggestFrustration
-      );
-    }
-
-    /*********************
-     * FLOW BUTTONS      *
-     *********************/
-    startGameBtn.addEventListener("click", () => {
-      showScreen("game");
-      resetGameState();
-      startGameLoop();
-    });
-
-    cancelGameBtn.addEventListener("click", () => {
-      // Let them skip game but still go through Qs + reward.
-      gameActive = false;
-      if (animationId) cancelAnimationFrame(animationId);
-      // Give baseline reward
-      bestRewardIndex = 0;
-      showScreen("questions");
-    });
-
-    submitQuestionsBtn.addEventListener("click", () => {
-      if (!validateQuestions()) {
-        alert("Please answer all three questions to continue.");
+      // Check catch
+      if (
+        ball.y + ball.radius >= basket.y &&
+        ball.y - ball.radius <= basket.y + basket.height &&
+        ball.x >= basket.x &&
+        ball.x <= basket.x + basket.width
+      ) {
+        catches++;
+        catchesDisplay.textContent = catches;
+        ball.active = false;
+        setTimeout(resetBall, 400);
         return;
       }
 
-      // At this point you have:
-      // - Player identity from Shopify abandoned cart
-      // - playerAnswers object (pet, machine type, frustration)
-      // - bestRewardIndex -> rewardTiers[bestRewardIndex]
-      //
-      // 👉 Hook this into your backend / Shopify app:
-      //    1. Persist answers + reward tier to your DB.
-      //    2. Attach to abandoned cart or customer profile.
-      //
-      // Example (pseudo):
-      // fetch("/api/game-complete", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     rewardTier: rewardTiers[bestRewardIndex],
-      //     answers: playerAnswers,
-      //     cartToken: "...",
-      //     customerId: "...",
-      //   }),
-      // });
+      // Miss
+      if (ball.y - ball.radius > canvas.height) {
+        misses++;
+        missesDisplay.textContent = misses;
+        ball.active = false;
+        setTimeout(resetBall, 400);
+      }
+    }
 
-      const reward = rewardTiers[bestRewardIndex];
-      finalRewardLabel.textContent = reward.label;
+    function drawHUD() {
+      ctx.fillStyle = "#000000aa";
+      ctx.font = "16px Arial";
+      ctx.fillText("Chances: " + (totalBalls - currentBallIndex + 1), 10, 20);
+      ctx.fillText("Caught: " + catches, 10, 40);
+    }
 
-      // Build UTM link for tracking conversion from this game
-      const baseUrl = "https://yourstore.com"; // TODO: replace with your store URL
-      const utmParams = new URLSearchParams({
-        utm_source: "game",
-        utm_medium: "abandoned_cart",
-        utm_campaign: "catch_and_win",
-        utm_content: reward.slug,
-      });
-      // In production, you might append cart token / discount code as well
-      claimLink.href = baseUrl + "/?" + utmParams.toString();
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
+      drawPegs();
+      drawBasket();
+      drawBall();
+      drawHUD();
 
-      showScreen("summary");
+      if (gameRunning) {
+        updateBasket();
+        updateBall();
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Controls
+    window.addEventListener("keydown", (e) => {
+      if (!gameRunning) return;
+      if (e.key === "ArrowLeft") basket.movingLeft = true;
+      if (e.key === "ArrowRight") basket.movingRight = true;
     });
 
-    shareGameBtn.addEventListener("click", async () => {
-      // This should be generated server-side per player,
-      // enforcing "only one share" and unique tracking.
-      // For now we use a placeholder link.
-      const shareLink =
-        "https://yourstore.com/game?ref=UNIQUE_ID_FROM_BACKEND";
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "ArrowLeft") basket.movingLeft = false;
+      if (e.key === "ArrowRight") basket.movingRight = false;
+    });
 
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(shareLink);
-          shareStatus.textContent = "Share link copied! Paste it to a friend.";
-        } else {
-          // Fallback: prompt
-          window.prompt(
-            "Copy this link and send it to a friend:",
-            shareLink
-          );
+    // Mouse move to control basket (easier for most users)
+    canvas.addEventListener("mousemove", (e) => {
+      if (!gameRunning) return;
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      basket.x = mouseX - basket.width / 2;
+    });
+
+    // Start game
+    function startGame() {
+      if (gameRunning) return;
+      overlay.classList.add("hidden");
+      gameRunning = true;
+      currentBallIndex = 0;
+      catches = 0;
+      misses = 0;
+      catchesDisplay.textContent = "0";
+      missesDisplay.textContent = "0";
+      resetBall();
+    }
+
+    overlay.addEventListener("click", startGame);
+
+    // Questions -> result
+    submitAnswers.addEventListener("click", () => {
+      // For now, just basic validation: require all fields
+      if (
+        !qPets.value ||
+        !qMachine.value ||
+        !qFrustration.value ||
+        !qDogCat.value ||
+        !qCleanHome.value
+      ) {
+        alert("Please answer all questions to unlock your reward.");
+        return;
+      }
+
+      const reward = computeReward(catches);
+      const answers = {
+        pets: qPets.value,
+        machine: qMachine.value,
+        frustration: qFrustration.value,
+        dogCat: qDogCat.value,
+        cleanHomeImportance: qCleanHome.value,
+        catches: catches,
+        reward: reward,
+      };
+
+      console.log("Game answers + reward payload:", answers);
+
+      questionsSection.style.display = "none";
+      resultSection.style.display = "block";
+      resultText.innerHTML =
+        "You caught " +
+        catches +
+        " out of " +
+        totalBalls +
+        " pods.<br>" +
+        "Your reward: <strong>" +
+        reward +
+        "</strong>";
+    });
+
+    // Reward logic: free shipping baseline + best discount
+    // Simple mapping:
+    // 0–2 catches → Free shipping
+    // 3–4 catches → Free shipping + 5% off
+    // 5 catches   → Free shipping + 10% off
+    function computeReward(catchCount) {
+      if (catchCount >= 5) {
+        return "Free shipping + 10% off your order";
+      } else if (catchCount >= 3) {
+        return "Free shipping + 5% off your order";
+      } else {
+        return "Free shipping on your next order";
+      }
+    }
+
+    // Buttons for link / share (placeholders for your team)
+    goToSiteBtn.addEventListener("click", () => {
+      // Example UTM link; your team can drop in the real one
+      window.location.href =
+        "https://yourbrand.com/cart?utm_source=abandoned_cart_game&utm_medium=game&utm_campaign=catch_and_win";
+    });
+
+    shareBtn.addEventListener("click", async () => {
+      const shareUrl = window.location.href; // or a dedicated campaign link
+      const shareText =
+        "I just played this laundry Catch & Win game and unlocked a reward. Try your luck:";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Catch & Win Game",
+            text: shareText,
+            url: shareUrl,
+          });
+        } catch (e) {
+          console.log("Share dismissed", e);
         }
-      } catch (err) {
-        console.error(err);
-        window.prompt(
-          "Copy this link and send it to a friend:",
-          shareLink
-        );
+      } else {
+        // Fallback: copy link
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          alert("Link copied. You can paste and share it with a friend.");
+        } catch (e) {
+          alert("Here is the link to share:\n" + shareUrl);
+        }
       }
     });
+
+    // Start loop
+    gameLoop();
   </script>
 </body>
 </html>
