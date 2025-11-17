@@ -1,660 +1,826 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Catch & Win – Laundry Game</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #f0f8ff, #e0f7fa);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
+    <meta charset="UTF-8" />
+    <title>Catch & Win – Laundry Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        :root {
+            --bg-top: #f3f7ff;
+            --bg-bottom: #e1f0ff;
+            --accent: #3b82f6;
+            --accent-dark: #2563eb;
+            --text-main: #111827;
+            --card-bg: #ffffff;
+        }
 
-    #container {
-      margin: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      max-width: 420px;
-      width: 100%;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 22px;
-      text-align: center;
-      color: #333;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    #subtitle {
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 10px;
-      color: #555;
-    }
+        .app-shell {
+            width: 100%;
+            max-width: 480px;
+            margin: 16px;
+        }
 
-    #gameWrapper {
-      position: relative;
-    }
+        .card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+            padding: 20px 18px 22px;
+        }
 
-    canvas {
-      border: 3px solid #333;
-      border-radius: 10px;
-      background: #bbdefb;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      display: block;
-    }
+        h1, h2, h3 {
+            margin: 0;
+        }
 
-    #overlayMessage {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.55);
-      color: #fff;
-      padding: 20px;
-      box-sizing: border-box;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+        }
 
-    #overlayMessage.hidden {
-      display: none;
-    }
+        p {
+            margin: 4px 0;
+        }
 
-    #overlayMessage button {
-      margin-top: 12px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
+        .tagline {
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
 
-    #infoBar {
-      margin-top: 8px;
-      font-size: 14px;
-      text-align: center;
-      color: #444;
-    }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.08);
+            color: #1d4ed8;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
 
-    #questionsSection,
-    #resultSection {
-      margin-top: 16px;
-      width: 100%;
-      max-width: 420px;
-      background: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 14px 16px;
-      box-sizing: border-box;
-      display: none;
-    }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: none;
+            outline: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            font-weight: 600;
+            font-size: 0.96rem;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+        }
 
-    #questionsSection h2,
-    #resultSection h2 {
-      margin-top: 0;
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 26px rgba(37, 99, 235, 0.4);
+        }
 
-    .question {
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+        }
 
-    label {
-      display: block;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
+        .btn.secondary {
+            background: #e5edff;
+            color: #1e40af;
+            box-shadow: none;
+        }
 
-    select {
-      width: 100%;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
+        .btn.secondary:hover {
+            box-shadow: 0 6px 14px rgba(148, 163, 184, 0.4);
+        }
 
-    #submitAnswers {
-      margin-top: 8px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: none;
-      background: #1976d2;
-      color: #fff;
-      font-size: 14px;
-      cursor: pointer;
-    }
+        .highlight {
+            font-weight: 600;
+            color: #111827;
+        }
 
-    #submitAnswers:hover {
-      background: #0f5ca4;
-    }
+        .stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
 
-    #resultText {
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 10px;
+        }
 
-    .btn-row {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+        .meta-row span strong {
+            color: #111827;
+        }
 
-    .result-btn {
-      flex: 1;
-      min-width: 120px;
-      padding: 8px;
-      text-align: center;
-      border-radius: 999px;
-      border: none;
-      background: #eeeeee;
-      cursor: pointer;
-      font-size: 13px;
-    }
+        .canvas-wrapper {
+            background: radial-gradient(circle at top, #e0f2ff, #f9fafb);
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 10px;
+        }
 
-    .result-btn.primary {
-      background: #1976d2;
-      color: #fff;
-    }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #eff6ff, #dbeafe);
+        }
 
-    .result-btn.primary:hover {
-      background: #0f5ca4;
-    }
+        .game-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            color: #4b5563;
+        }
 
-    .small-note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 4px;
-    }
-  </style>
+        .badge {
+            border-radius: 999px;
+            padding: 3px 9px;
+            background: rgba(16, 185, 129, 0.08);
+            color: #047857;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-top: 14px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #111827;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .options-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            border-radius: 999px;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.08s ease, border-color 0.08s ease, color 0.08s ease;
+        }
+
+        .chip.selected {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+
+        .scale-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .scale-item {
+            flex: 1;
+            border-radius: 10px;
+            padding: 6px 0;
+            text-align: center;
+            font-size: 0.8rem;
+            background: #f3f4f6;
+            color: #4b5563;
+            cursor: pointer;
+        }
+
+        .scale-item.selected {
+            background: #2563eb;
+            color: white;
+        }
+
+        .result-summary {
+            margin-top: 10px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: #eff6ff;
+            font-size: 0.9rem;
+            color: #1e3a8a;
+        }
+
+        .share-note {
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 18px 16px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="container">
-    <h1>Catch & Win</h1>
-    <div id="subtitle">
-      You have 5 chances to catch falling detergent pods and unlock your reward.
-    </div>
+<div class="app-shell">
 
-    <div id="gameWrapper">
-      <canvas id="gameCanvas" width="360" height="540"></canvas>
-      <div id="overlayMessage">
-        <div>
-          <div style="font-size:18px; margin-bottom:6px;">
-            Tap to start, catch as many as you can
-          </div>
-          <div style="font-size:14px;">
-            Move the basket left and right with your mouse or arrow keys.
-            Pegs will make the pods bounce. Most people catch 1–2.
-          </div>
-          <button>Start Game</button>
+    <!-- Intro Screen -->
+    <div id="introScreen" class="card screen active">
+        <div class="pill">
+            <span>🧺 Fresh Load Bonus</span>
         </div>
-      </div>
+        <h1>Catch & Win</h1>
+        <p class="tagline">
+            You left something in your cart… want to turn it into a reward instead?
+        </p>
+
+        <div class="stack">
+            <p>
+                Play a quick 30-second game. Catch the detergent drops in your basket to unlock
+                free shipping and extra savings on your next order.
+            </p>
+            <ul style="padding-left: 18px; margin: 4px 0; font-size: 0.86rem; color:#4b5563;">
+                <li>5 drops total</li>
+                <li>More catches = bigger reward</li>
+                <li>Deal is valid for 24 hours</li>
+            </ul>
+        </div>
+
+        <div class="meta-row">
+            <span>Average reward: <strong>free shipping + 5% off</strong></span>
+            <span class="badge">Skill game</span>
+        </div>
+
+        <button class="btn" id="startGameBtn">Play to unlock your deal</button>
+        <p class="hint">
+            Tip: move the basket with your arrow keys or by dragging on mobile.
+        </p>
     </div>
 
-    <div id="infoBar">
-      Catches: <span id="catchesDisplay">0</span> / 5 | Misses:
-      <span id="missesDisplay">0</span>
-    </div>
+    <!-- Game Screen -->
+    <div id="gameScreen" class="card screen">
+        <h2 style="font-size:1.3rem;">Catch the drops</h2>
+        <p class="tagline">Bounce through the pegs and catch as many as you can.</p>
 
-    <div id="questionsSection">
-      <h2>Quick questions before you unlock your reward</h2>
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="360" height="520"></canvas>
+        </div>
 
-      <div class="question">
-        <label for="qPets">Do you have pets?</label>
-        <select id="qPets">
-          <option value="">Select one</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </div>
+        <div class="game-hud">
+            <span>Drops left: <span id="dropsLeftLabel">5</span></span>
+            <span>Caught: <span id="caughtLabel">0</span></span>
+        </div>
+        <p class="hint">Use ◀ ▶ or drag to move the basket. You get 5 drops.</p>
 
-      <div class="question">
-        <label for="qMachine">What type of machine do you use?</label>
-        <select id="qMachine">
-          <option value="">Select one</option>
-          <option value="top">Top loader</option>
-          <option value="front">Front loader</option>
-        </select>
-      </div>
-
-      <div class="question">
-        <label for="qFrustration">What is your biggest laundry frustration?</label>
-        <select id="qFrustration">
-          <option value="">Select one</option>
-          <option value="smell">Smell</option>
-          <option value="stains">Stains</option>
-          <option value="time">Time</option>
-          <option value="pet-hair">Pet hair</option>
-        </select>
-      </div>
-
-      <div class="question">
-        <label for="qDogCat">Do you have a dog or cat?</label>
-        <select id="qDogCat">
-          <option value="">Select one</option>
-          <option value="dog">Dog</option>
-          <option value="cat">Cat</option>
-          <option value="both">Both</option>
-          <option value="neither">Neither</option>
-        </select>
-      </div>
-
-      <div class="question">
-        <label for="qCleanHome">How important is a clean / fresh home?</label>
-        <select id="qCleanHome">
-          <option value="">Select 1–5</option>
-          <option value="1">1 – Not that important</option>
-          <option value="2">2</option>
-          <option value="3">3 – Somewhat important</option>
-          <option value="4">4</option>
-          <option value="5">5 – Very important</option>
-        </select>
-      </div>
-
-      <button id="submitAnswers">See my reward</button>
-      <div class="small-note">
-        Your answers help us tailor future tips and offers to your home.
-      </div>
-    </div>
-
-    <div id="resultSection">
-      <h2>Your reward</h2>
-      <div id="resultText"></div>
-      <div class="small-note" id="expiresNote">
-        This offer is valid for the next 24 hours.
-      </div>
-      <div class="btn-row">
-        <button class="result-btn primary" id="goToSiteBtn">
-          Go back to checkout
+        <button class="btn secondary" id="finishEarlyBtn" style="margin-top:10px;">
+            I am done, continue
         </button>
-        <button class="result-btn" id="shareBtn">
-          Share this game
-        </button>
-      </div>
-      <div class="small-note">
-        For your marketing/dev team: answers and reward can be sent to your
-        backend/database. Right now they are just logged in the console.
-      </div>
     </div>
-  </div>
 
-  <script>
-    // Canvas setup
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    <!-- Survey Screen -->
+    <div id="surveyScreen" class="card screen">
+        <h2 style="font-size:1.35rem;">Quick 30-second check-in</h2>
+        <p class="tagline">
+            A few questions so we can tailor future tips and offers for you.
+        </p>
 
-    // Overlay and UI
-    const overlay = document.getElementById("overlayMessage");
-    const catchesDisplay = document.getElementById("catchesDisplay");
-    const missesDisplay = document.getElementById("missesDisplay");
-    const questionsSection = document.getElementById("questionsSection");
-    const resultSection = document.getElementById("resultSection");
-    const resultText = document.getElementById("resultText");
+        <form id="surveyForm">
+            <div class="form-group">
+                <label>Do you have pets?</label>
+                <div class="options-row" data-question="pets" data-required="true">
+                    <button type="button" class="chip">Yes</button>
+                    <button type="button" class="chip">No</button>
+                </div>
+            </div>
 
-    const qPets = document.getElementById("qPets");
-    const qMachine = document.getElementById("qMachine");
-    const qFrustration = document.getElementById("qFrustration");
-    const qDogCat = document.getElementById("qDogCat");
-    const qCleanHome = document.getElementById("qCleanHome");
-    const submitAnswers = document.getElementById("submitAnswers");
+            <div class="form-group">
+                <label>What type of machine do you use?</label>
+                <div class="options-row" data-question="machine" data-required="true">
+                    <button type="button" class="chip">Top loader</button>
+                    <button type="button" class="chip">Front loader</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>What is your biggest laundry frustration?</label>
+                <div class="options-row" data-question="frustration" data-required="true">
+                    <button type="button" class="chip">Smell</button>
+                    <button type="button" class="chip">Stains</button>
+                    <button type="button" class="chip">Time</button>
+                    <button type="button" class="chip">Pet hair</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Do you have a dog or cat?</label>
+                <div class="options-row" data-question="petType" data-required="true">
+                    <button type="button" class="chip">Dog</button>
+                    <button type="button" class="chip">Cat</button>
+                    <button type="button" class="chip">Both</button>
+                    <button type="button" class="chip">Neither</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>How important is a clean, fresh home?</label>
+                <div class="scale-row" data-question="homeImportance" data-required="true">
+                    <div class="scale-item">1</div>
+                    <div class="scale-item">2</div>
+                    <div class="scale-item">3</div>
+                    <div class="scale-item">4</div>
+                    <div class="scale-item">5</div>
+                </div>
+                <p class="hint">1 = not a big deal, 5 = non-negotiable for me.</p>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top:16px;">See my reward</button>
+        </form>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="card screen">
+        <h2 style="font-size:1.4rem;">Your reward is ready</h2>
+        <div class="result-summary" id="rewardSummary"></div>
+
+        <button class="btn" id="goToSiteBtn" style="margin-top:14px;">
+            Apply my reward at checkout
+        </button>
+
+        <button class="btn secondary" id="shareBtn" style="margin-top:8px;">
+            Share once with a friend
+        </button>
+
+        <p class="share-note">
+            Each game link is unique and valid for 24 hours. Sharing lets one friend play for their
+            own reward using your invite.
+        </p>
+    </div>
+</div>
+
+<script>
+    // Screen management
+    const introScreen = document.getElementById("introScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const surveyScreen = document.getElementById("surveyScreen");
+    const resultScreen = document.getElementById("resultScreen");
+
+    const startGameBtn = document.getElementById("startGameBtn");
+    const finishEarlyBtn = document.getElementById("finishEarlyBtn");
+
+    const dropsLeftLabel = document.getElementById("dropsLeftLabel");
+    const caughtLabel = document.getElementById("caughtLabel");
+
+    const rewardSummary = document.getElementById("rewardSummary");
     const goToSiteBtn = document.getElementById("goToSiteBtn");
     const shareBtn = document.getElementById("shareBtn");
 
-    // Game state
-    let gameRunning = false;
-    let totalBalls = 5;
-    let currentBallIndex = 0;
-    let catches = 0;
-    let misses = 0;
+    function showScreen(screen) {
+        [introScreen, gameScreen, surveyScreen, resultScreen].forEach(s => {
+            s.classList.remove("active");
+        });
+        screen.classList.add("active");
+    }
 
-    // Basket
-    const basket = {
-      width: 90,
-      height: 18,
-      x: canvas.width / 2 - 45,
-      y: canvas.height - 50,
-      speed: 6,
-      movingLeft: false,
-      movingRight: false,
+    // Game setup
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const gameState = {
+        totalDrops: 5,
+        dropsLeft: 5,
+        caught: 0,
+        activeBall: null,
+        basket: { x: canvas.width / 2 - 60, y: canvas.height - 45, width: 120, height: 20, speed: 6 },
+        pegs: [],
+        running: false
     };
 
-    // Ball
-    const ball = {
-      radius: 10,
-      x: canvas.width / 2,
-      y: 40,
-      vx: 0,
-      vy: 2,
-      gravity: 0.25,
-      active: false,
-    };
-
-    // Pegs (Plinko-style)
-    const pegs = [];
     function createPegs() {
-      pegs.length = 0;
-      const rows = 6;
-      const cols = 7;
-      const spacingX = canvas.width / (cols + 1);
-      const spacingY = 60;
-      const startY = 100;
-      const radius = 6;
+        gameState.pegs = [];
+        const rows = 3; // no last row; 3 rows keeps some suspense
+        const cols = 7;
+        const spacingX = canvas.width / cols;
+        const startY = 90;
+        const rowSpacing = 80;
 
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          const offsetX = row % 2 === 0 ? spacingX / 2 : 0; // staggered
-          const x = spacingX * (col + 1) + offsetX * 0.7;
-          const y = startY + row * spacingY;
-
-          pegs.push({ x, y, r: radius });
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const offset = (r % 2 === 0) ? spacingX / 2 : 0;
+                const x = c * spacingX + offset + spacingX * 0.15;
+                const y = startY + r * rowSpacing;
+                gameState.pegs.push({ x, y, radius: 8 });
+            }
         }
-      }
     }
 
-    createPegs();
+    function spawnBall() {
+        if (gameState.dropsLeft <= 0) {
+            endGame();
+            return;
+        }
 
-    function resetBall() {
-      currentBallIndex++;
-      if (currentBallIndex > totalBalls) {
-        endGame();
-        return;
-      }
-      ball.x = canvas.width / 2;
-      ball.y = 40;
-      ball.vx = (Math.random() - 0.5) * 1.5; // slight random drift
-      ball.vy = 2;
-      ball.active = true;
+        gameState.dropsLeft--;
+        dropsLeftLabel.textContent = gameState.dropsLeft;
+
+        gameState.activeBall = {
+            x: canvas.width / 2,
+            y: 40,
+            radius: 10,
+            vx: (Math.random() - 0.5) * 2.2,
+            vy: 1.5,
+            active: true
+        };
     }
 
-    function endGame() {
-      gameRunning = false;
-      ball.active = false;
-      questionsSection.style.display = "block";
+    function resetGameState() {
+        gameState.dropsLeft = gameState.totalDrops;
+        gameState.caught = 0;
+        caughtLabel.textContent = "0";
+        dropsLeftLabel.textContent = gameState.totalDrops;
+        gameState.activeBall = null;
+        gameState.basket.x = canvas.width / 2 - gameState.basket.width / 2;
     }
 
-    // Drawing
     function drawBackground() {
-      // Light vertical gradient-ish background already in CSS,
-      // here we just draw “ground”
-      ctx.fillStyle = "#e3f2fd";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#eff6ff");
+        gradient.addColorStop(1, "#dbeafe");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#c8e6c9";
-      ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+        // subtle shelves / lines
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.4)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 70);
+        ctx.lineTo(canvas.width, 70);
+        ctx.moveTo(0, canvas.height - 60);
+        ctx.lineTo(canvas.width, canvas.height - 60);
+        ctx.stroke();
     }
 
     function drawPegs() {
-      ctx.fillStyle = "#90caf9";
-      ctx.strokeStyle = "#1976d2";
-      ctx.lineWidth = 1.5;
-      pegs.forEach((peg) => {
-        ctx.beginPath();
-        ctx.arc(peg.x, peg.y, peg.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      });
+        ctx.fillStyle = "#6b21a8";
+        ctx.strokeStyle = "rgba(15,23,42,0.3)";
+        gameState.pegs.forEach(peg => {
+            ctx.beginPath();
+            ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        });
     }
 
     function drawBasket() {
-      ctx.fillStyle = "#ffb74d";
-      ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+        const b = gameState.basket;
+        const radius = 10;
+        ctx.fillStyle = "#1d4ed8";
+        ctx.strokeStyle = "rgba(15,23,42,0.4)";
+        ctx.beginPath();
+        ctx.moveTo(b.x + radius, b.y);
+        ctx.lineTo(b.x + b.width - radius, b.y);
+        ctx.quadraticCurveTo(b.x + b.width, b.y, b.x + b.width, b.y + radius);
+        ctx.lineTo(b.x + b.width, b.y + b.height);
+        ctx.lineTo(b.x, b.y + b.height);
+        ctx.lineTo(b.x, b.y + radius);
+        ctx.quadraticCurveTo(b.x, b.y, b.x + radius, b.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
 
-      // simple handle detail
-      ctx.strokeStyle = "#f57c00";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(basket.x, basket.y, basket.width, basket.height);
+        // subtle basket lines
+        ctx.strokeStyle = "rgba(219, 234, 254, 0.7)";
+        ctx.beginPath();
+        ctx.moveTo(b.x + 8, b.y + 6);
+        ctx.lineTo(b.x + b.width - 8, b.y + 6);
+        ctx.moveTo(b.x + 8, b.y + 12);
+        ctx.lineTo(b.x + b.width - 8, b.y + 12);
+        ctx.stroke();
     }
 
     function drawBall() {
-      if (!ball.active) return;
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff176";
-      ctx.fill();
-      ctx.strokeStyle = "#fbc02d";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+        const ball = gameState.activeBall;
+        if (!ball || !ball.active) return;
 
-    function updateBasket() {
-      if (basket.movingLeft) {
-        basket.x -= basket.speed;
-      }
-      if (basket.movingRight) {
-        basket.x += basket.speed;
-      }
-      // clamp
-      if (basket.x < 10) basket.x = 10;
-      if (basket.x + basket.width > canvas.width - 10) {
-        basket.x = canvas.width - 10 - basket.width;
-      }
+        ctx.fillStyle = "#f97316";
+        ctx.strokeStyle = "rgba(124,45,18,0.6)";
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // small highlight
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.beginPath();
+        ctx.arc(ball.x - 4, ball.y - 4, 3, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     function updateBall() {
-      if (!ball.active) return;
+        const ball = gameState.activeBall;
+        if (!ball || !ball.active) return;
 
-      // Gravity and movement
-      ball.vy += ball.gravity;
-      ball.x += ball.vx;
-      ball.y += ball.vy;
+        // Gravity
+        ball.vy += 0.08;
+        ball.y += ball.vy;
+        ball.x += ball.vx;
 
-      // Slight wall bounce to keep it interesting
-      if (ball.x - ball.radius < 0) {
-        ball.x = ball.radius;
-        ball.vx *= -0.6;
-      } else if (ball.x + ball.radius > canvas.width) {
-        ball.x = canvas.width - ball.radius;
-        ball.vx *= -0.6;
-      }
-
-      // Peg collisions
-      for (let peg of pegs) {
-        const dx = ball.x - peg.x;
-        const dy = ball.y - peg.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < ball.radius + peg.r) {
-          // Simple bounce: reflect velocity along normal
-          const nx = dx / dist;
-          const ny = dy / dist;
-          const dot = ball.vx * nx + ball.vy * ny;
-          ball.vx = ball.vx - 2 * dot * nx;
-          ball.vy = ball.vy - 2 * dot * ny;
-
-          // Add a little randomness so paths are less predictable
-          ball.vx += (Math.random() - 0.5) * 0.7;
-          ball.vy += (Math.random() - 0.5) * 0.7;
-
-          // Push ball slightly out of peg
-          const overlap = ball.radius + peg.r - dist;
-          ball.x += nx * overlap;
-          ball.y += ny * overlap;
+        // Wall collisions
+        if (ball.x - ball.radius < 4) {
+            ball.x = ball.radius + 4;
+            ball.vx *= -0.9;
         }
-      }
+        if (ball.x + ball.radius > canvas.width - 4) {
+            ball.x = canvas.width - ball.radius - 4;
+            ball.vx *= -0.9;
+        }
 
-      // Check catch
-      if (
-        ball.y + ball.radius >= basket.y &&
-        ball.y - ball.radius <= basket.y + basket.height &&
-        ball.x >= basket.x &&
-        ball.x <= basket.x + basket.width
-      ) {
-        catches++;
-        catchesDisplay.textContent = catches;
-        ball.active = false;
-        setTimeout(resetBall, 400);
-        return;
-      }
+        // Peg collisions
+        for (const peg of gameState.pegs) {
+            const dx = ball.x - peg.x;
+            const dy = ball.y - peg.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < ball.radius + peg.radius) {
+                const angle = Math.atan2(dy, dx);
+                const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy) || 2;
+                const bounceAngle = angle + (Math.random() * 0.7 - 0.35); // randomness for path
+                ball.vx = Math.cos(bounceAngle) * speed;
+                ball.vy = Math.sin(bounceAngle) * speed;
+                const overlap = ball.radius + peg.radius - dist;
+                ball.x += Math.cos(angle) * overlap;
+                ball.y += Math.sin(angle) * overlap;
+            }
+        }
 
-      // Miss
-      if (ball.y - ball.radius > canvas.height) {
-        misses++;
-        missesDisplay.textContent = misses;
-        ball.active = false;
-        setTimeout(resetBall, 400);
-      }
+        // Basket and ground
+        const b = gameState.basket;
+        if (
+            ball.y + ball.radius >= b.y &&
+            ball.y + ball.radius <= b.y + b.height + 6 &&
+            ball.x >= b.x &&
+            ball.x <= b.x + b.width
+        ) {
+            // Caught
+            gameState.caught++;
+            caughtLabel.textContent = gameState.caught;
+            ball.active = false;
+            setTimeout(spawnBall, 450);
+        } else if (ball.y - ball.radius > canvas.height + 20) {
+            // Missed
+            ball.active = false;
+            setTimeout(spawnBall, 450);
+        }
     }
 
-    function drawHUD() {
-      ctx.fillStyle = "#000000aa";
-      ctx.font = "16px Arial";
-      ctx.fillText("Chances: " + (totalBalls - currentBallIndex + 1), 10, 20);
-      ctx.fillText("Caught: " + catches, 10, 40);
+    function drawGame() {
+        drawBackground();
+        drawPegs();
+        drawBasket();
+        drawBall();
     }
 
     function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBackground();
-      drawPegs();
-      drawBasket();
-      drawBall();
-      drawHUD();
-
-      if (gameRunning) {
-        updateBasket();
+        if (!gameState.running) return;
         updateBall();
-      }
-
-      requestAnimationFrame(gameLoop);
+        drawGame();
+        requestAnimationFrame(gameLoop);
     }
 
-    // Controls
-    window.addEventListener("keydown", (e) => {
-      if (!gameRunning) return;
-      if (e.key === "ArrowLeft") basket.movingLeft = true;
-      if (e.key === "ArrowRight") basket.movingRight = true;
+    // Controls: arrows and pointer
+    document.addEventListener("keydown", (e) => {
+        const b = gameState.basket;
+        if (!gameState.running) return;
+        if (e.key === "ArrowLeft") {
+            b.x -= b.speed * 1.8;
+        } else if (e.key === "ArrowRight") {
+            b.x += b.speed * 1.8;
+        }
+        if (b.x < 6) b.x = 6;
+        if (b.x + b.width > canvas.width - 6) b.x = canvas.width - b.width - 6;
     });
 
-    window.addEventListener("keyup", (e) => {
-      if (e.key === "ArrowLeft") basket.movingLeft = false;
-      if (e.key === "ArrowRight") basket.movingRight = false;
+    let dragging = false;
+    canvas.addEventListener("pointerdown", (e) => {
+        dragging = true;
+        moveBasketToPointer(e);
+    });
+    window.addEventListener("pointerup", () => {
+        dragging = false;
+    });
+    canvas.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        moveBasketToPointer(e);
     });
 
-    // Mouse move to control basket (easier for most users)
-    canvas.addEventListener("mousemove", (e) => {
-      if (!gameRunning) return;
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      basket.x = mouseX - basket.width / 2;
-    });
+    function moveBasketToPointer(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const b = gameState.basket;
+        b.x = x - b.width / 2;
+        if (b.x < 6) b.x = 6;
+        if (b.x + b.width > canvas.width - 6) b.x = canvas.width - b.width - 6;
+    }
 
-    // Start game
     function startGame() {
-      if (gameRunning) return;
-      overlay.classList.add("hidden");
-      gameRunning = true;
-      currentBallIndex = 0;
-      catches = 0;
-      misses = 0;
-      catchesDisplay.textContent = "0";
-      missesDisplay.textContent = "0";
-      resetBall();
+        resetGameState();
+        createPegs();
+        showScreen(gameScreen);
+        gameState.running = true;
+        spawnBall();
+        gameLoop();
     }
 
-    overlay.addEventListener("click", startGame);
+    function endGame() {
+        // When there is no active ball and no drops left, end
+        if (gameState.activeBall && gameState.activeBall.active) return;
+        gameState.running = false;
+        showScreen(surveyScreen);
+    }
 
-    // Questions -> result
-    submitAnswers.addEventListener("click", () => {
-      // For now, just basic validation: require all fields
-      if (
-        !qPets.value ||
-        !qMachine.value ||
-        !qFrustration.value ||
-        !qDogCat.value ||
-        !qCleanHome.value
-      ) {
-        alert("Please answer all questions to unlock your reward.");
-        return;
-      }
-
-      const reward = computeReward(catches);
-      const answers = {
-        pets: qPets.value,
-        machine: qMachine.value,
-        frustration: qFrustration.value,
-        dogCat: qDogCat.value,
-        cleanHomeImportance: qCleanHome.value,
-        catches: catches,
-        reward: reward,
-      };
-
-      console.log("Game answers + reward payload:", answers);
-
-      questionsSection.style.display = "none";
-      resultSection.style.display = "block";
-      resultText.innerHTML =
-        "You caught " +
-        catches +
-        " out of " +
-        totalBalls +
-        " pods.<br>" +
-        "Your reward: <strong>" +
-        reward +
-        "</strong>";
+    startGameBtn.addEventListener("click", () => {
+        showScreen(gameScreen);
+        startGame();
     });
 
-    // Reward logic: free shipping baseline + best discount
-    // Simple mapping:
-    // 0–2 catches → Free shipping
-    // 3–4 catches → Free shipping + 5% off
-    // 5 catches   → Free shipping + 10% off
-    function computeReward(catchCount) {
-      if (catchCount >= 5) {
-        return "Free shipping + 10% off your order";
-      } else if (catchCount >= 3) {
-        return "Free shipping + 5% off your order";
-      } else {
-        return "Free shipping on your next order";
-      }
+    finishEarlyBtn.addEventListener("click", () => {
+        endGame();
+    });
+
+    // Survey logic
+    const surveyForm = document.getElementById("surveyForm");
+
+    function setupChipGroups() {
+        document.querySelectorAll(".options-row").forEach(row => {
+            row.addEventListener("click", (e) => {
+                if (e.target.classList.contains("chip")) {
+                    row.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+                    e.target.classList.add("selected");
+                }
+            });
+        });
+
+        document.querySelectorAll(".scale-row").forEach(row => {
+            row.addEventListener("click", (e) => {
+                if (e.target.classList.contains("scale-item")) {
+                    row.querySelectorAll(".scale-item").forEach(c => c.classList.remove("selected"));
+                    e.target.classList.add("selected");
+                }
+            });
+        });
     }
 
-    // Buttons for link / share (placeholders for your team)
+    setupChipGroups();
+
+    function collectSurveyAnswers() {
+        const answers = {};
+
+        document.querySelectorAll("[data-question]").forEach(group => {
+            const qKey = group.getAttribute("data-question");
+            let value = null;
+
+            if (group.classList.contains("scale-row")) {
+                const selected = group.querySelector(".scale-item.selected");
+                if (selected) value = selected.textContent.trim();
+            } else {
+                const selected = group.querySelector(".chip.selected");
+                if (selected) value = selected.textContent.trim();
+            }
+
+            answers[qKey] = value;
+        });
+
+        return answers;
+    }
+
+    function validateSurvey(answers) {
+        let valid = true;
+        document.querySelectorAll("[data-question]").forEach(group => {
+            const key = group.getAttribute("data-question");
+            const required = group.getAttribute("data-required") === "true";
+            if (required && !answers[key]) valid = false;
+        });
+        return valid;
+    }
+
+    function determineReward(caught) {
+        if (caught <= 0) {
+            return {
+                label: "Thanks for playing",
+                details: "No catches this time, but we added a little surprise to your next email from us.",
+                tier: "none"
+            };
+        } else if (caught === 1) {
+            return {
+                label: "Free shipping unlocked",
+                details: "Nice catch. You unlocked free shipping on your next order.",
+                tier: "ship"
+            };
+        } else if (caught <= 3) {
+            return {
+                label: "Free shipping + 5% off",
+                details: "Solid run. You unlocked free shipping plus 5% off your next order.",
+                tier: "ship5"
+            };
+        } else {
+            return {
+                label: "Free shipping + 10% off",
+                details: "You were on fire. You unlocked free shipping plus 10% off your next order.",
+                tier: "ship10"
+            };
+        }
+    }
+
+    surveyForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const answers = collectSurveyAnswers();
+        if (!validateSurvey(answers)) {
+            alert("Please answer all questions to see your reward.");
+            return;
+        }
+
+        const reward = determineReward(gameState.caught);
+
+        // Placeholder: send data to your backend or Shopify app
+        // Replace with your own fetch/POST
+        console.log("Game result:", {
+            caught: gameState.caught,
+            rewardTier: reward.tier,
+            surveyAnswers: answers
+        });
+
+        rewardSummary.innerHTML = `
+            <div class="highlight" style="font-size:1.02rem; margin-bottom:4px;">
+                ${reward.label}
+            </div>
+            <div>${reward.details}</div>
+            <div style="margin-top:6px; font-size:0.85rem; color:#4b5563;">
+                Your game score: ${gameState.caught} of 5 catches.
+            </div>
+        `;
+
+        showScreen(resultScreen);
+    });
+
+    // CTA buttons – wire these up to your real URLs
     goToSiteBtn.addEventListener("click", () => {
-      // Example UTM link; your team can drop in the real one
-      window.location.href =
-        "https://yourbrand.com/cart?utm_source=abandoned_cart_game&utm_medium=game&utm_campaign=catch_and_win";
+        // Use your Shopify cart URL with a UTM marker and reward token.
+        // Example:
+        // window.location.href = "https://yourstore.com/cart?utm_source=catch-game&utm_medium=play&utm_campaign=abandoned-cart&rewardTier=" + encodeURIComponent(tier);
+        alert("In production, this would send them back to your site with a UTM and reward applied.");
     });
 
-    shareBtn.addEventListener("click", async () => {
-      const shareUrl = window.location.href; // or a dedicated campaign link
-      const shareText =
-        "I just played this laundry Catch & Win game and unlocked a reward. Try your luck:";
-
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: "Catch & Win Game",
-            text: shareText,
-            url: shareUrl,
-          });
-        } catch (e) {
-          console.log("Share dismissed", e);
+    let shareUsed = false;
+    shareBtn.addEventListener("click", () => {
+        if (shareUsed) {
+            alert("This link can only be shared once.");
+            return;
         }
-      } else {
-        // Fallback: copy link
-        try {
-          await navigator.clipboard.writeText(shareUrl);
-          alert("Link copied. You can paste and share it with a friend.");
-        } catch (e) {
-          alert("Here is the link to share:\n" + shareUrl);
-        }
-      }
+        shareUsed = true;
+        // In production, generate a unique share URL on the backend and copy/show it.
+        alert("Here you would generate a unique share link for one friend to play.");
     });
-
-    // Start loop
-    gameLoop();
-  </script>
+</script>
 </body>
 </html>
