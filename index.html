@@ -1,792 +1,920 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Catch the Drops – Uproot Clean</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-        /* Page + card layout */
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at top, #e9f5ff 0%, #c7ddff 45%, #b4c9ff 100%);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            color: #182244;
-        }
-
-        .card {
-            width: 420px;
-            max-width: 100%;
-            background: #fdfdff;
-            border-radius: 28px;
-            box-shadow: 0 20px 60px rgba(6, 33, 87, 0.25);
-            padding: 24px 24px 28px;
-            box-sizing: border-box;
-        }
-
-        .logo-row {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 8px;
-        }
-
-        .logo-row img {
-            max-width: 240px;
-            height: auto;
-        }
-
-        h1 {
-            font-size: 22px;
-            margin: 8px 0 4px;
-        }
-
-        p {
-            margin: 4px 0;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .highlight-box {
-            margin-top: 16px;
-            border-radius: 18px;
-            padding: 16px 18px;
-            background: linear-gradient(135deg, #e8f0ff, #f5fbff);
-        }
-
-        .pill-row {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .pill {
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid rgba(92, 123, 255, 0.25);
-            font-size: 12px;
-            color: #3752e8;
-            font-weight: 600;
-        }
-
-        .muted {
-            font-size: 12px;
-            color: #6e7aa8;
-        }
-
-        .button-row {
-            margin-top: 22px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            flex: 1;
-            border-radius: 999px;
-            padding: 11px 16px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #2468ff, #3056ff);
-            color: #ffffff;
-            box-shadow: 0 6px 18px rgba(42, 90, 255, 0.45);
-        }
-
-        .btn-ghost {
-            background: #ffffff;
-            color: #1a2b5c;
-            border: 1px solid rgba(167, 176, 219, 0.7);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Game section */
-        .game-shell {
-            margin-top: 12px;
-            border-radius: 22px;
-            padding: 18px 16px 16px;
-            background: linear-gradient(180deg, #f3f7ff 0%, #edf5ff 40%, #e7f3ff 100%);
-            box-shadow: inset 0 0 0 1px rgba(208, 217, 252, 0.6);
-        }
-
-        canvas {
-            display: block;
-            margin: 0 auto 10px;
-            background: linear-gradient(180deg, #f6f9ff 0%, #eef4ff 60%, #eaf5ff 100%);
-            border-radius: 16px;
-            box-shadow: inset 0 0 0 1px rgba(201, 211, 252, 0.6);
-        }
-
-        .game-status {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            font-size: 12px;
-            color: #5c6794;
-            margin-top: 4px;
-        }
-
-        .game-tip {
-            margin-top: 3px;
-            font-size: 11px;
-            color: #9aa2c7;
-        }
-
-        .stat-number {
-            font-weight: 600;
-            color: #3651ff;
-        }
-
-        /* Questions screen */
-        .question-block {
-            margin-top: 14px;
-        }
-
-        .question-label {
-            font-size: 14px;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .option-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .chip {
-            border-radius: 999px;
-            padding: 6px 11px;
-            border: 1px solid #c7cff5;
-            font-size: 12px;
-            cursor: pointer;
-            background: #ffffff;
-            color: #48507f;
-        }
-
-        .chip.selected {
-            background: #2f57ff;
-            color: #ffffff;
-            border-color: #2f57ff;
-        }
-
-        .range-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 4px;
-        }
-
-        input[type="range"] {
-            flex: 1;
-        }
-
-        .range-value {
-            min-width: 20px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #2f57ff;
-        }
-
-        /* Result screen */
-        .reward-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: #ecf2ff;
-            color: #2840c6;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .reward-large {
-            font-size: 18px;
-            margin-top: 12px;
-        }
-
-        .secondary-actions {
-            margin-top: 14px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-small {
-            flex: 1;
-            font-size: 13px;
-            padding: 9px 12px;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-<div class="card">
-    <div class="logo-row">
-        <!-- Make sure Logo_UprootClean.webp exists next to this file and matches case exactly -->
-        <img src="Logo_UprootClean.webp" alt="Uproot Clean" />
-    </div>
-
-    <!-- Intro screen -->
-    <section id="introScreen">
-        <h1>Catch the drops</h1>
-        <p>You get 5 chances to catch as many drops as you can. The more you catch, the better your reward.</p>
-
-        <div class="highlight-box">
-            <p class="muted">Here is what you can win:</p>
-            <div class="pill-row">
-                <div class="pill">Free shipping</div>
-                <div class="pill">+ 5% off</div>
-                <div class="pill">+ 10% off</div>
-            </div>
-            <p class="muted" style="margin-top: 10px;">
-                Your reward is based on how many drops you catch. No pressure, just a little fun while your cart waits.
-            </p>
-        </div>
-
-        <p class="muted" style="margin-top: 14px;">
-            Takes about 30–45 seconds. No app to download.
-        </p>
-
-        <div class="button-row">
-            <button id="startGameBtn" class="btn btn-primary">
-                Play &amp; reveal my reward
-            </button>
-        </div>
-    </section>
-
-    <!-- Game screen -->
-    <section id="gameScreen" class="hidden">
-        <h1>Catch the drops</h1>
-        <p>Bounce through the pegs and catch as many as you can.</p>
-
-        <div class="game-shell">
-            <canvas id="gameCanvas" width="320" height="420"></canvas>
-            <div class="game-status">
-                <span>Drops left: <span id="dropsLeft" class="stat-number">5</span></span>
-                <span>Caught: <span id="caughtCount" class="stat-number">0</span></span>
-            </div>
-            <div class="game-tip">
-                Tip: drag or use ◀▶ to move the basket.
-            </div>
-        </div>
-    </section>
-
-    <!-- Questions screen -->
-    <section id="questionsScreen" class="hidden">
-        <h1>Quick questions</h1>
-        <p class="muted">A few quick questions so we can tailor future tips and offers.</p>
-
-        <div class="question-block">
-            <div class="question-label">1. Do you have pets?</div>
-            <div class="option-row" data-question="pets" id="qPets">
-                <button class="chip" data-value="yes">Yes</button>
-                <button class="chip" data-value="no">No</button>
-            </div>
-        </div>
-
-        <div class="question-block">
-            <div class="question-label">2. What type of machine do you use?</div>
-            <div class="option-row" data-question="machine" id="qMachine">
-                <button class="chip" data-value="top">Top loader</button>
-                <button class="chip" data-value="front">Front loader</button>
-            </div>
-        </div>
-
-        <div class="question-block">
-            <div class="question-label">3. What is your biggest laundry frustration?</div>
-            <div class="option-row" data-question="frustration" id="qFrustration">
-                <button class="chip" data-value="smell">Smell</button>
-                <button class="chip" data-value="stains">Stains</button>
-                <button class="chip" data-value="time">Time</button>
-                <button class="chip" data-value="pet-hair">Pet hair</button>
-            </div>
-        </div>
-
-        <div class="question-block">
-            <div class="question-label">4. Do you have a dog or cat?</div>
-            <div class="option-row" data-question="petType" id="qPetType">
-                <button class="chip" data-value="dog">Dog</button>
-                <button class="chip" data-value="cat">Cat</button>
-                <button class="chip" data-value="both">Both</button>
-                <button class="chip" data-value="neither">Neither</button>
-            </div>
-        </div>
-
-        <div class="question-block">
-            <div class="question-label">5. How important is a clean, fresh home?</div>
-            <div class="range-row">
-                <span class="muted">Not very</span>
-                <input id="importanceRange" type="range" min="1" max="5" value="4" />
-                <span class="muted">Very</span>
-                <span id="importanceValue" class="range-value">4</span>
-            </div>
-        </div>
-
-        <div class="button-row" style="margin-top: 22px;">
-            <button id="questionsNextBtn" class="btn btn-primary">
-                See my reward
-            </button>
-        </div>
-    </section>
-
-    <!-- Result screen -->
-    <section id="resultScreen" class="hidden">
-        <h1>Your reward is ready</h1>
-        <p class="muted" id="resultSummary"></p>
-
-        <div class="reward-tag">
-            Reward unlocked
-            <span id="rewardLabel"></span>
-        </div>
-
-        <p id="rewardDetail" class="reward-large"></p>
-
-        <p class="muted">
-            Click below to head back to your cart with this reward applied. Your offer will stay live for 24 hours.
-        </p>
-
-        <div class="button-row">
-            <button id="useRewardBtn" class="btn btn-primary">
-                Use my reward
-            </button>
-        </div>
-
-        <div class="secondary-actions">
-            <button id="playDemoBtn" class="btn btn-ghost btn-small">
-                Play a quick demo
-            </button>
-            <button id="shareBtn" class="btn btn-ghost btn-small">
-                Share this with a friend
-            </button>
-        </div>
-    </section>
-</div>
-
-<script>
-    // ---------- Screen management ----------
-    const introScreen = document.getElementById("introScreen");
-    const gameScreen = document.getElementById("gameScreen");
-    const questionsScreen = document.getElementById("questionsScreen");
-    const resultScreen = document.getElementById("resultScreen");
-
-    function showScreen(name) {
-        introScreen.classList.add("hidden");
-        gameScreen.classList.add("hidden");
-        questionsScreen.classList.add("hidden");
-        resultScreen.classList.add("hidden");
-
-        switch (name) {
-            case "intro":
-                introScreen.classList.remove("hidden");
-                break;
-            case "game":
-                gameScreen.classList.remove("hidden");
-                break;
-            case "questions":
-                questionsScreen.classList.remove("hidden");
-                break;
-            case "result":
-                resultScreen.classList.remove("hidden");
-                break;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uproot Catch & Clean</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    // ---------- Game setup ----------
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #fdfbff 0%, #d9f3ff 40%, #b8e0ff 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #0f172a;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 24px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
+      padding: 20px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .logo-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .logo-row img {
+      max-width: 170px; /* smaller logo */
+      height: auto;
+      object-fit: contain;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 220ms ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .intro-card {
+      text-align: center;
+      padding: 12px 4px 4px;
+    }
+
+    .eyebrow {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #38bdf8;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    .reward-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .reward-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: rgba(56, 189, 248, 0.08);
+      color: #0369a1;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reward-pill span.icon {
+      font-size: 0.92rem;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.96rem;
+      font-weight: 600;
+      transition: transform 80ms ease, box-shadow 80ms ease, background 120ms ease, color 120ms ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      color: #f8fafc;
+      box-shadow: 0 12px 25px rgba(34, 197, 94, 0.35);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(34, 197, 94, 0.45);
+    }
+
+    .secondary-btn {
+      background: rgba(15, 23, 42, 0.03);
+      color: #0f172a;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    .secondary-btn:hover {
+      background: rgba(15, 23, 42, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      color: #0369a1;
+      border: none;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+      box-shadow: none;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    .ghost-btn:hover {
+      color: #0ea5e9;
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    /* GAME SCREEN */
+
+    .game-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.86rem;
+      color: #64748b;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1);
+      color: #0369a1;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .game-stats {
+      display: flex;
+      gap: 10px;
+    }
+
+    .stat-chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.03);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 3 / 4;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 30%, #dcfce7 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      display: block;
+      margin-inline: auto;
+    }
+
+    .game-help {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* QUESTIONS */
+
+    .questions-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+
+    .questions-card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .question-block {
+      padding: 10px 10px 8px;
+      border-radius: 14px;
+      background: rgba(248, 250, 252, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .question-label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .option-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .option-pill {
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: white;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .option-pill.selected {
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      border-color: transparent;
+      color: #f9fafb;
+      box-shadow: 0 6px 14px rgba(34, 197, 94, 0.45);
+    }
+
+    .scale-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .scale-pill {
+      width: 32px;
+      padding: 6px 0;
+      text-align: center;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .scale-pill.selected {
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      border-color: transparent;
+      color: #f9fafb;
+      box-shadow: 0 6px 14px rgba(34, 197, 94, 0.45);
+    }
+
+    /* RESULT */
+
+    .result-card {
+      text-align: center;
+      padding: 8px 4px 0;
+    }
+
+    .reward-highlight {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+
+    .reward-sub {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 14px;
+    }
+
+    .result-tagline {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .app-shell {
+        margin: 10px;
+        border-radius: 18px;
+        padding: 16px 14px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="logo-row">
+      <!-- You can change this filename if needed -->
+      <img src="uproot-clean-logo.png" alt="Uproot Clean Logo" />
+    </div>
+
+    <!-- INTRO SCREEN -->
+    <div id="screen-intro" class="screen active">
+      <div class="intro-card">
+        <div class="eyebrow">Uproot Catch & Clean</div>
+        <div class="title">Catch & win your clean-laundry upgrade</div>
+        <div class="subtitle">
+          Play a quick 5-ball drop game to unlock<span style="white-space:nowrap;"> free shipping</span> and
+          extra savings on your next clean-home routine.
+        </div>
+
+        <div class="reward-pills">
+          <div class="reward-pill">
+            <span class="icon">🚚</span> Free shipping
+          </div>
+          <div class="reward-pill">
+            <span class="icon">✨</span> Up to 10% extra off
+          </div>
+          <div class="reward-pill">
+            <span class="icon">⏱️</span> 30 seconds, 5 drops
+          </div>
+        </div>
+
+        <div class="btn-stack">
+          <button class="primary-btn" id="startGameBtn">
+            Play now & unlock your reward
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="screen-game" class="screen">
+      <div class="game-shell">
+        <div class="game-header">
+          <span class="badge">Skill game</span>
+          <div class="game-stats">
+            <div class="stat-chip" id="caughtStat">Caught: 0</div>
+            <div class="stat-chip" id="leftStat">Drops left: 5</div>
+          </div>
+        </div>
+
+        <canvas id="gameCanvas" width="360" height="480"></canvas>
+        <div class="game-help">
+          Move the basket with your mouse or arrow keys. Catch as many balls as you can!
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS SCREEN -->
+    <div id="screen-questions" class="screen">
+      <div class="questions-card">
+        <div>
+          <div class="eyebrow">Just a few quick taps</div>
+          <h2>Tell us about your laundry life</h2>
+          <p class="subtitle" style="margin-bottom: 10px;">
+            We will use this to recommend better routines and future rewards that actually fit your home.
+          </p>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-block">
+          <div class="question-label">Do you have pets?</div>
+          <div class="option-row" data-question="pets">
+            <button class="option-pill" data-value="yes">Yes</button>
+            <button class="option-pill" data-value="no">No</button>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-block">
+          <div class="question-label">What type of washing machine do you use?</div>
+          <div class="option-row" data-question="machine">
+            <button class="option-pill" data-value="top">Top loader</button>
+            <button class="option-pill" data-value="front">Front loader</button>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-block">
+          <div class="question-label">What is your biggest laundry frustration?</div>
+          <div class="option-row" data-question="frustration">
+            <button class="option-pill" data-value="smell">Smell</button>
+            <button class="option-pill" data-value="stains">Stains</button>
+            <button class="option-pill" data-value="time">Time</button>
+            <button class="option-pill" data-value="petHair">Pet hair</button>
+          </div>
+        </div>
+
+        <!-- Q4 NEW -->
+        <div class="question-block">
+          <div class="question-label">Do you have a dog or cat?</div>
+          <div class="option-row" data-question="petType">
+            <button class="option-pill" data-value="dog">Dog</button>
+            <button class="option-pill" data-value="cat">Cat</button>
+            <button class="option-pill" data-value="both">Both</button>
+            <button class="option-pill" data-value="neither">Neither</button>
+          </div>
+        </div>
+
+        <!-- Q5 NEW -->
+        <div class="question-block">
+          <div class="question-label">How important is a clean / fresh home?</div>
+          <div class="scale-row" data-question="cleanScore">
+            <button class="scale-pill" data-value="1">1</button>
+            <button class="scale-pill" data-value="2">2</button>
+            <button class="scale-pill" data-value="3">3</button>
+            <button class="scale-pill" data-value="4">4</button>
+            <button class="scale-pill" data-value="5">5</button>
+          </div>
+          <div style="font-size:0.75rem;color:#9ca3af;margin-top:4px;">
+            1 = “Nice to have” &nbsp;&middot;&nbsp; 5 = “Non-negotiable”
+          </div>
+        </div>
+
+        <div class="btn-stack" style="margin-top: 6px;">
+          <button class="primary-btn" id="submitAnswersBtn">
+            Lock in my reward
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="screen-result" class="screen">
+      <div class="result-card">
+        <div class="eyebrow">Nice catch</div>
+        <div id="rewardHeadline" class="reward-highlight">
+          Reward headline here
+        </div>
+        <div id="rewardSub" class="reward-sub">
+          Reward description here
+        </div>
+        <div class="result-tagline">
+          Your unique reward link will be wired into this button and the share flow by the team.
+        </div>
+
+        <div class="btn-stack">
+          <button class="secondary-btn" id="playDemoBtn">
+            Play again (demo)
+          </button>
+          <button class="primary-btn" id="shareBtn">
+            Share this opportunity with a friend
+          </button>
+        </div>
+
+        <button class="ghost-btn" id="backToStorePlaceholder">
+          Return to store (placeholder link)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --------- SCREEN HANDLING ----------
+    const screens = {
+      intro: document.getElementById("screen-intro"),
+      game: document.getElementById("screen-game"),
+      questions: document.getElementById("screen-questions"),
+      result: document.getElementById("screen-result"),
+    };
+
+    function showScreen(name) {
+      Object.values(screens).forEach((el) => el.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    // --------- GAME LOGIC ----------
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    const dropsLeftSpan = document.getElementById("dropsLeft");
-    const caughtSpan = document.getElementById("caughtCount");
+    const caughtStat = document.getElementById("caughtStat");
+    const leftStat = document.getElementById("leftStat");
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const TOTAL_BALLS = 5;
+    let ballsCaught = 0;
+    let ballsUsed = 0;
 
-    const ball = {
-        x: width / 2,
-        y: 60,
-        radius: 7,
-        vx: 0,
-        vy: 0
-    };
+    let ball = null;
+    let basket = null;
+    let pegs = [];
+    let topRowPegXs = [];
 
-    const basket = {
-        width: 80, // narrower than before
-        height: 12,
-        x: width / 2 - 40,
-        y: height - 50,
-        speed: 5
-    };
+    let gameRunning = false;
+    let lastTimestamp = 0;
 
-    const pegRadius = 6;
-    const pegs = [];
+    // Bucket width reduced to ~4/5 previous assumption
+    const BASKET_BASE_WIDTH = 120; // previous ~150 -> now ~4/5
 
-    let gravity = 0.25;
-    let dropsTotal = 5;
-    let dropsLeft = dropsTotal;
-    let caught = 0;
-    let isDropping = false;
-    let currentScreen = "intro";
+    function initPegs() {
+      pegs = [];
+      topRowPegXs = [];
 
-    function createPegs() {
-        pegs.length = 0;
-        const rows = 4; // a bit more challenging
-        const cols = 7;
-        const topOffset = 110;
-        const rowSpacing = 55;
-        const colSpacing = width / (cols + 1);
+      const rows = 6; // one extra row for more difficulty
+      const cols = 7;
+      const pegRadius = 6;
+      const verticalSpacing = 52;
+      const horizontalSpacing = 46;
+      const topOffset = 60;
+      const sideMargin = 40;
 
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const x = colSpacing * (col + 1);
-                const y = topOffset + rowSpacing * row;
-                pegs.push({ x, y });
-            }
+      for (let r = 0; r < rows; r++) {
+        const y = topOffset + r * verticalSpacing;
+        const staggerOffset = (r % 2 === 0) ? 0 : horizontalSpacing / 2;
+
+        for (let c = 0; c < cols; c++) {
+          let x = sideMargin + c * horizontalSpacing + staggerOffset;
+          if (x < pegRadius + 8 || x > canvas.width - pegRadius - 8) continue;
+
+          pegs.push({ x, y, radius: pegRadius });
+          if (r === 0) {
+            topRowPegXs.push(x);
+          }
         }
+      }
     }
 
     function resetGameState() {
-        dropsLeft = dropsTotal;
-        caught = 0;
-        dropsLeftSpan.textContent = dropsLeft;
-        caughtSpan.textContent = caught;
-        createPegs();
-        startNewDrop();
+      ballsCaught = 0;
+      ballsUsed = 0;
+      caughtStat.textContent = "Caught: 0";
+      leftStat.textContent = "Drops left: " + TOTAL_BALLS;
+
+      // Basket
+      const basketWidth = BASKET_BASE_WIDTH;
+      basket = {
+        width: basketWidth,
+        height: 14,
+        x: (canvas.width - basketWidth) / 2,
+        y: canvas.height - 40,
+        speed: 6,
+      };
+
+      initPegs();
+      ball = null;
+      gameRunning = true;
     }
 
-    function randomStartX() {
-        const margin = 40;
-        return Math.random() * (width - margin * 2) + margin;
+    function createNewBall() {
+      if (ballsUsed >= TOTAL_BALLS) {
+        endGame();
+        return;
+      }
+
+      ballsUsed++;
+      leftStat.textContent = "Drops left: " + (TOTAL_BALLS - ballsUsed);
+
+      const ballRadius = 8;
+
+      // Start ball directly above a random peg in the top row
+      const startX =
+        topRowPegXs.length > 0
+          ? topRowPegXs[Math.floor(Math.random() * topRowPegXs.length)]
+          : canvas.width / 2;
+
+      ball = {
+        x: startX,
+        y: 20,
+        vx: 0,
+        vy: 0.5,
+        radius: ballRadius,
+      };
     }
 
-    function startNewDrop() {
-        if (dropsLeft <= 0) {
-            // Small pause, then move to questions
-            setTimeout(() => {
-                currentScreen = "questions";
-                showScreen("questions");
-            }, 650);
-            return;
-        }
-
-        ball.x = randomStartX();
-        ball.y = 70;
-        ball.vx = 0;
-        ball.vy = 1.5;
-        isDropping = true;
+    function endGame() {
+      gameRunning = false;
+      // short delay then go to questions
+      setTimeout(() => {
+        showScreen("questions");
+      }, 550);
     }
 
-    function updateBall() {
-        if (!isDropping || currentScreen !== "game") return;
+    function updateBallPhysics(delta) {
+      if (!ball) return;
 
-        ball.vy += gravity;
-        ball.y += ball.vy;
-        ball.x += ball.vx;
+      const gravity = 0.26; // slightly toned down so it's not too wild
+      const damping = 0.82;
 
-        // Wall collisions
-        if (ball.x - ball.radius < 10) {
-            ball.x = 10 + ball.radius;
-            ball.vx = Math.abs(ball.vx) * 0.8;
-        } else if (ball.x + ball.radius > width - 10) {
-            ball.x = width - 10 - ball.radius;
-            ball.vx = -Math.abs(ball.vx) * 0.8;
+      // basic gravity
+      ball.vy += gravity;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      // wall collisions
+      if (ball.x - ball.radius < 0) {
+        ball.x = ball.radius;
+        ball.vx = -ball.vx * damping;
+      } else if (ball.x + ball.radius > canvas.width) {
+        ball.x = canvas.width - ball.radius;
+        ball.vx = -ball.vx * damping;
+      }
+
+      // peg collisions
+      for (const peg of pegs) {
+        const dx = ball.x - peg.x;
+        const dy = ball.y - peg.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = ball.radius + peg.radius;
+
+        if (dist < minDist && dist > 0) {
+          // resolve overlap
+          const overlap = minDist - dist;
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          ball.x += nx * (overlap + 0.2);
+          ball.y += ny * (overlap + 0.2);
+
+          // reflect velocity
+          const dot = ball.vx * nx + ball.vy * ny;
+          ball.vx = ball.vx - 2 * dot * nx;
+          ball.vy = ball.vy - 2 * dot * ny;
+
+          ball.vx *= damping;
+          ball.vy *= damping;
+
+          // add a smidge of randomness so paths vary
+          ball.vx += (Math.random() - 0.5) * 0.4;
         }
+      }
 
-        // Peg collisions
-        for (const peg of pegs) {
-            const dx = ball.x - peg.x;
-            const dy = ball.y - peg.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < ball.radius + pegRadius) {
-                // Simple bounce: push upward and nudge sideways
-                const side = dx < 0 ? -1 : 1;
-                ball.vy = -Math.abs(ball.vy) * 0.6;
-                ball.vx += side * 0.9;
-                // Slightly separate them to avoid sticking
-                const overlap = ball.radius + pegRadius - dist;
-                ball.x += (dx / dist) * overlap;
-                ball.y += (dy / dist) * overlap;
-            }
-        }
+      // basket catch check
+      if (
+        ball.y + ball.radius >= basket.y &&
+        ball.y + ball.radius <= basket.y + basket.height + 2 &&
+        ball.x >= basket.x &&
+        ball.x <= basket.x + basket.width &&
+        ball.vy > 0
+      ) {
+        ballsCaught++;
+        caughtStat.textContent = "Caught: " + ballsCaught;
+        ball = null;
 
-        // Basket catch or miss
-        if (ball.y - ball.radius > height) {
-            isDropping = false;
-            dropsLeft--;
-            dropsLeftSpan.textContent = dropsLeft;
+        setTimeout(() => {
+          createNewBall();
+        }, 400);
+        return;
+      }
 
-            const withinX =
-                ball.x >= basket.x &&
-                ball.x <= basket.x + basket.width;
-
-            if (withinX) {
-                caught++;
-                caughtSpan.textContent = caught;
-            }
-
-            setTimeout(startNewDrop, 550);
-        }
+      // fell below
+      if (ball.y - ball.radius > canvas.height + 10) {
+        ball = null;
+        setTimeout(() => {
+          createNewBall();
+        }, 400);
+      }
     }
 
     function drawGame() {
-        ctx.clearRect(0, 0, width, height);
+      // clear
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // soft background
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, "#f8fbff");
-        grad.addColorStop(1, "#e5f1ff");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
+      // soft background gradient already via CSS, but we can add subtle overlay
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, "rgba(255,255,255,0.4)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // top line
-        ctx.strokeStyle = "#d1dafc";
-        ctx.lineWidth = 2;
+      // pegs
+      for (const peg of pegs) {
         ctx.beginPath();
-        ctx.moveTo(28, 95);
-        ctx.lineTo(width - 28, 95);
-        ctx.stroke();
-
-        // pegs
-        ctx.fillStyle = "#7b40ff";
-        for (const peg of pegs) {
-            ctx.beginPath();
-            ctx.arc(peg.x, peg.y, pegRadius, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // basket
-        ctx.fillStyle = "#245cff";
-        const basketRadius = 12;
-        const bx = basket.x;
-        const by = basket.y;
-        const bw = basket.width;
-        const bh = basket.height;
-
-        const r = basketRadius;
-        ctx.beginPath();
-        ctx.moveTo(bx + r, by);
-        ctx.lineTo(bx + bw - r, by);
-        ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
-        ctx.lineTo(bx + bw, by + bh - r);
-        ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - r, by + bh);
-        ctx.lineTo(bx + r, by + bh);
-        ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - r);
-        ctx.lineTo(bx, by + r);
-        ctx.quadraticCurveTo(bx, by, bx + r, by);
+        const outerGrad = ctx.createRadialGradient(
+          peg.x - 1,
+          peg.y - 1,
+          1,
+          peg.x,
+          peg.y,
+          peg.radius + 1
+        );
+        outerGrad.addColorStop(0, "#e0f2fe");
+        outerGrad.addColorStop(1, "#0ea5e9");
+        ctx.fillStyle = outerGrad;
+        ctx.arc(peg.x, peg.y, peg.radius, 0, Math.PI * 2);
         ctx.fill();
+      }
 
-        // ball
-        ctx.fillStyle = "#ff8a2b";
+      // basket
+      ctx.save();
+      ctx.fillStyle = "#0f172a";
+      ctx.beginPath();
+      const r = 8;
+      const bx = basket.x;
+      const by = basket.y;
+      const bw = basket.width;
+      const bh = basket.height;
+      ctx.moveTo(bx + r, by);
+      ctx.lineTo(bx + bw - r, by);
+      ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
+      ctx.lineTo(bx + bw, by + bh);
+      ctx.lineTo(bx, by + bh);
+      ctx.lineTo(bx, by + r);
+      ctx.quadraticCurveTo(bx, by, bx + r, by);
+      ctx.closePath();
+      ctx.fill();
+
+      // inner line
+      ctx.strokeStyle = "rgba(248,250,252,0.8)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(bx + 6, by + 2);
+      ctx.lineTo(bx + bw - 6, by + 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // ball
+      if (ball) {
+        ctx.save();
+        const bGrad = ctx.createRadialGradient(
+          ball.x - 3,
+          ball.y - 3,
+          2,
+          ball.x,
+          ball.y,
+          ball.radius + 2
+        );
+        bGrad.addColorStop(0, "#fefce8");
+        bGrad.addColorStop(1, "#facc15");
+        ctx.fillStyle = bGrad;
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = "rgba(255,255,255,0.7)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(ball.x - 2, ball.y - 2, ball.radius / 2, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.restore();
+      }
     }
 
-    function gameLoop() {
-        if (currentScreen === "game") {
-            updateBall();
-            drawGame();
-        }
-        requestAnimationFrame(gameLoop);
+    function gameLoop(timestamp) {
+      const delta = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+
+      if (screens.game.classList.contains("active") && gameRunning) {
+        updateBallPhysics(delta);
+        drawGame();
+      } else if (screens.game.classList.contains("active")) {
+        drawGame(); // keep static drawing
+      }
+
+      requestAnimationFrame(gameLoop);
     }
 
-    // ---------- Basket controls ----------
-    let isDragging = false;
-    let dragOffsetX = 0;
-
-    canvas.addEventListener("mousedown", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        if (x >= basket.x && x <= basket.x + basket.width) {
-            isDragging = true;
-            dragOffsetX = x - basket.x;
-        }
-    });
-
-    window.addEventListener("mouseup", () => {
-        isDragging = false;
-    });
-
-    window.addEventListener("mousemove", (e) => {
-        if (!isDragging || currentScreen !== "game") return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        basket.x = x - dragOffsetX;
-        clampBasket();
-    });
-
-    canvas.addEventListener("touchstart", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.touches[0].clientX - rect.left;
-        if (x >= basket.x && x <= basket.x + basket.width) {
-            isDragging = true;
-            dragOffsetX = x - basket.x;
-        }
-    });
-
-    window.addEventListener("touchend", () => {
-        isDragging = false;
-    });
-
-    window.addEventListener("touchmove", (e) => {
-        if (!isDragging || currentScreen !== "game") return;
-        const rect = canvas.getBoundingClientRect();
-        const x = e.touches[0].clientX - rect.left;
-        basket.x = x - dragOffsetX;
-        clampBasket();
-    }, { passive: false });
-
-    function clampBasket() {
-        const minX = 25;
-        const maxX = width - basket.width - 25;
-        if (basket.x < minX) basket.x = minX;
-        if (basket.x > maxX) basket.x = maxX;
+    // Basket control
+    function moveBasket(dx) {
+      if (!basket) return;
+      basket.x += dx;
+      if (basket.x < 0) basket.x = 0;
+      if (basket.x + basket.width > canvas.width) {
+        basket.x = canvas.width - basket.width;
+      }
     }
 
-    window.addEventListener("keydown", (e) => {
-        if (currentScreen !== "game") return;
-        if (e.key === "ArrowLeft") {
-            basket.x -= basket.speed;
-            clampBasket();
-        } else if (e.key === "ArrowRight") {
-            basket.x += basket.speed;
-            clampBasket();
-        }
+    document.addEventListener("keydown", (e) => {
+      if (!screens.game.classList.contains("active")) return;
+      if (!basket) return;
+      if (e.key === "ArrowLeft") {
+        moveBasket(-basket.speed);
+      } else if (e.key === "ArrowRight") {
+        moveBasket(basket.speed);
+      }
     });
 
-    // ---------- Questions selection ----------
+    canvas.addEventListener("mousemove", (e) => {
+      if (!screens.game.classList.contains("active")) return;
+      if (!basket) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      basket.x = x - basket.width / 2;
+      if (basket.x < 0) basket.x = 0;
+      if (basket.x + basket.width > canvas.width) {
+        basket.x = canvas.width - basket.width;
+      }
+    });
+
+    // --------- QUESTIONS / ANSWERS ----------
     const answerState = {
-        pets: null,
-        machine: null,
-        frustration: null,
-        petType: null,
-        importance: 4
+      pets: null,
+      machine: null,
+      frustration: null,
+      petType: null,
+      cleanScore: null,
     };
 
-    function setupChipGroup(id, key) {
-        const container = document.getElementById(id);
-        const chips = container.querySelectorAll(".chip");
-        chips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                chips.forEach((c) => c.classList.remove("selected"));
-                chip.classList.add("selected");
-                answerState[key] = chip.dataset.value;
-            });
-        });
+    function wireOptionGroup(questionName, selector, pillClass) {
+      const group = document.querySelector(selector + "[data-question='" + questionName + "']");
+      if (!group) return;
+      group.addEventListener("click", (e) => {
+        const btn = e.target.closest("." + pillClass);
+        if (!btn) return;
+        const value = btn.getAttribute("data-value");
+        answerState[questionName] = value;
+
+        Array.from(group.children).forEach((child) =>
+          child.classList.remove("selected")
+        );
+        btn.classList.add("selected");
+      });
     }
 
-    setupChipGroup("qPets", "pets");
-    setupChipGroup("qMachine", "machine");
-    setupChipGroup("qFrustration", "frustration");
-    setupChipGroup("qPetType", "petType");
+    wireOptionGroup("pets", ".option-row", "option-pill");
+    wireOptionGroup("machine", ".option-row", "option-pill");
+    wireOptionGroup("frustration", ".option-row", "option-pill");
+    wireOptionGroup("petType", ".option-row", "option-pill");
+    wireOptionGroup("cleanScore", ".scale-row", "scale-pill");
 
-    const importanceRange = document.getElementById("importanceRange");
-    const importanceValue = document.getElementById("importanceValue");
-    importanceRange.addEventListener("input", () => {
-        answerState.importance = parseInt(importanceRange.value, 10);
-        importanceValue.textContent = importanceRange.value;
-    });
+    function computeRewardText() {
+      let headline = "";
+      let sub = "";
 
-    // ---------- Reward + navigation ----------
+      if (ballsCaught <= 1) {
+        headline = "You unlocked Free Shipping 🎁";
+        sub =
+          "Nice try! Your skill still unlocked free shipping on your next clean-home order. Keep an eye out for your unique link at checkout.";
+      } else if (ballsCaught <= 3) {
+        headline = "Free Shipping + 5% Off ✨";
+        sub =
+          "Solid catching skills. Enjoy free shipping plus 5% off your next order. Your code will be wired into this button by the team.";
+      } else {
+        headline = "Free Shipping + 10% Off 🏆";
+        sub =
+          "You crushed it. You unlocked free shipping plus 10% off your next order. Your high score just made laundry a little sweeter.";
+      }
+
+      return { headline, sub };
+    }
+
+    // --------- EVENT WIRING ----------
     document.getElementById("startGameBtn").addEventListener("click", () => {
-        currentScreen = "game";
-        showScreen("game");
-        resetGameState();
+      showScreen("game");
+      resetGameState();
+      createNewBall(); // auto-start: no buttons
     });
 
-    document.getElementById("questionsNextBtn").addEventListener("click", () => {
-        const summary = `You caught ${caught} out of ${dropsTotal} drops.`;
-        let discount = 0;
-        if (caught >= 4) discount = 10;
-        else if (caught >= 2) discount = 5;
+    document.getElementById("submitAnswersBtn").addEventListener("click", () => {
+      // (Optional) validate answers here if you want to require everything
+      const { headline, sub } = computeRewardText();
+      document.getElementById("rewardHeadline").textContent = headline;
+      document.getElementById("rewardSub").textContent = sub;
 
-        const rewardLabel = document.getElementById("rewardLabel");
-        const rewardDetail = document.getElementById("rewardDetail");
-        const resultSummary = document.getElementById("resultSummary");
+      // This is where you'd send answerState + ballsCaught into your backend
+      // to store as PI / preferences against the user profile.
 
-        let labelText = "Free shipping";
-        if (discount > 0) {
-            labelText += " + " + discount + "% off";
-        }
-
-        rewardLabel.textContent = labelText;
-        rewardDetail.textContent = labelText;
-
-        resultSummary.textContent = summary;
-
-        currentScreen = "result";
-        showScreen("result");
-
-        // Here you would also send answerState and caught to your backend
-        // to store in a customer profile.
-        console.log("Game result:", { caught, dropsTotal });
-        console.log("Answers:", answerState);
+      showScreen("result");
     });
 
-    // Placeholder: use reward – replace URL with your cart + UTM
-    document.getElementById("useRewardBtn").addEventListener("click", () => {
-        const url = "https://your-site.com/cart?utm_source=uproot_game&utm_medium=abandoned_cart&utm_campaign=catch_and_clean";
-        window.location.href = url;
-    });
-
-    // Play demo again – just for fun, does not change stored reward server-side
     document.getElementById("playDemoBtn").addEventListener("click", () => {
-        currentScreen = "game";
-        showScreen("game");
-        resetGameState();
+      // Demo replay: does NOT change rewards, just lets them feel the game again
+      showScreen("game");
+      resetGameState();
+      createNewBall();
     });
 
-    // Share with a friend – placeholder
-    document.getElementById("shareBtn").addEventListener("click", async () => {
-        const shareUrl = "https://your-site.com/game?ref=SHARE_TOKEN_PLACEHOLDER";
-
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: "Catch the drops with Uproot Clean",
-                    text: "I just played this quick game and unlocked a reward. You can try it too:",
-                    url: shareUrl
-                });
-            } catch (err) {
-                console.log("Share cancelled", err);
-            }
-        } else if (navigator.clipboard) {
-            await navigator.clipboard.writeText(shareUrl);
-            alert("Share link copied. Send it to a friend to let them play.");
-        } else {
-            alert("Here is your share link:\n" + shareUrl);
-        }
+    document.getElementById("shareBtn").addEventListener("click", () => {
+      // Placeholder: your team will replace this with a unique share URL + UTM
+      alert(
+        "This is where a unique share link will be generated so a friend can play once and claim their own reward."
+      );
     });
 
-    // Start the animation loop
-    createPegs();
-    gameLoop();
-</script>
+    document
+      .getElementById("backToStorePlaceholder")
+      .addEventListener("click", () => {
+        // Placeholder: wire to your storefront URL with UTM parameters
+        alert("This will return the shopper to your store with tracking/UTMs.");
+      });
+
+    // Start the render loop
+    requestAnimationFrame(gameLoop);
+  </script>
 </body>
 </html>
