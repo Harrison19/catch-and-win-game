@@ -825,23 +825,26 @@
 
 // Mobile control (drag to move)
 function handleTouchMove(e) {
-    e.preventDefault();
+  // Only react if the game screen is active and the basket exists
+  if (!screens.game.classList.contains("active") || !basket) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
+  e.preventDefault();
 
-    // Convert touch position to actual canvas coordinate system
-    const scaleX = canvas.width / rect.width;
-    const canvasX = (touch.clientX - rect.left) * scaleX;
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0] || e.changedTouches[0];
 
-    bucket.x = Math.max(
-        0,
-        Math.min(canvas.width - bucket.width, canvasX - bucket.width / 2)
-    );
+  // Convert touch position to the canvas coordinate system
+  const scaleX = canvas.width / rect.width;
+  const canvasX = (touch.clientX - rect.left) * scaleX;
+
+  basket.x = Math.max(
+    0,
+    Math.min(canvas.width - basket.width, canvasX - basket.width / 2)
+  );
 }
 
-canvas.addEventListener('touchstart', handleTouchMove, { passive: false });
-canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+canvas.addEventListener("touchstart", handleTouchMove, { passive: false });
+canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     // --------- QUESTIONS / ANSWERS ----------
     const answerState = {
