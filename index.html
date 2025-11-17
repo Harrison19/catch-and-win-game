@@ -809,6 +809,7 @@
       }
     });
 
+// Desktop control
     canvas.addEventListener("mousemove", (e) => {
       if (!screens.game.classList.contains("active")) return;
       if (!basket) return;
@@ -820,6 +821,23 @@
         basket.x = canvas.width - basket.width;
       }
     });
+
+// Mobile control (drag to move)
+function handleTouchMove(e) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const touchX = touch.clientX - rect.left;
+
+    bucket.x = Math.max(
+        0,
+        Math.min(canvas.width - bucket.width, touchX - bucket.width / 2)
+    );
+}
+
+canvas.addEventListener('touchstart', handleTouchMove, { passive: false });
+canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+
 
     // --------- QUESTIONS / ANSWERS ----------
     const answerState = {
